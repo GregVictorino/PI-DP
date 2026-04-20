@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca — Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Modal de confirmação customizado -->
+<div class="confirm-overlay hidden" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <h4 id="confirmTitle">Confirmar ação</h4>
+    <p id="confirmMsg">Tem certeza que deseja continuar?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" id="confirmNo">Cancelar</button>
+      <button class="btn btn-danger" id="confirmYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <div>
+        <h2>Biblioteca</h2>
+        <p>Sistema de Locação</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu</div>
+      <button class="nav-item active" onclick="showSection('dashboard')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Visão Geral
+      </button>
+      <button class="nav-item" onclick="showSection('livros')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Livros
+      </button>
+      <button class="nav-item" onclick="showSection('locacoes')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Locações
+      </button>
+      <button class="nav-item" onclick="showSection('clientes')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clientes
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="userName">Carregando...</div>
+          <div class="user-role" id="userRole">—</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-full btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+    <div class="top-bar">
+      <h1 id="pageTitle">Visão Geral</h1>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ====== SEÇÃO: DASHBOARD ====== -->
+      <section id="sec-dashboard" class="section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div>
+              <div class="stat-value" id="statTotalLivros">—</div>
+              <div class="stat-label">Total de Livros</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+              <div class="stat-value" id="statDisponiveis">—</div>
+              <div class="stat-label">Disponíveis</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="stat-value" id="statLocacoesAtivas">—</div>
+              <div class="stat-label">Locações Ativas</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="stat-value" id="statClientes">—</div>
+              <div class="stat-label">Clientes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Locações Recentes</h3>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Livro</th>
+                  <th>Data Locação</th>
+                  <th>Devolução Prevista</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaRecentes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SEÇÃO: LIVROS ====== -->
+      <section id="sec-livros" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Livros Cadastrados</h3>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalLivro()">+ Novo Livro</button>
+          </div>
+          <div class="card-body" style="padding-bottom:0">
+            <div class="form-group" style="max-width:320px">
+              <input type="text" id="buscaLivro" placeholder="Buscar por título..." oninput="buscarLivros()" />
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Autor</th>
+                  <th>Gênero</th>
+                  <th>Total</th>
+                  <th>Disponível</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaLivros"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SEÇÃO: LOCAÇÕES ====== -->
+      <section id="sec-locacoes" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Locações</h3>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalLocacao()">+ Nova Locação</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Livro</th>
+                  <th>Locação</th>
+                  <th>Devolução Prevista</th>
+                  <th>Devolução Real</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaLocacoes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SEÇÃO: CLIENTES ====== -->
+      <section id="sec-clientes" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Clientes Cadastrados</h3>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalCliente()">+ Novo Cliente</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th>CPF</th>
+                  <th>Perfil</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaClientes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ====== MODAL: LIVRO ====== -->
+<div class="modal-overlay hidden" id="modalLivroOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalLivroTitulo">Novo Livro</h3>
+      <button class="modal-close" onclick="fecharModalLivro()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="livroError" class="alert alert-error" style="display:none;"></div>
+      <input type="hidden" id="livroId" />
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" id="livroTitulo" placeholder="Ex: Dom Casmurro" />
+      </div>
+      <div class="form-group">
+        <label>Autor *</label>
+        <input type="text" id="livroAutor" placeholder="Ex: Machado de Assis" />
+      </div>
+      <div class="form-group">
+        <label>Gênero</label>
+        <input type="text" id="livroGenero" placeholder="Ex: Romance, Ficção..." />
+      </div>
+      <div class="form-group">
+        <label>ISBN</label>
+        <input type="text" id="livroIsbn" placeholder="Ex: 978-3-16-148410-0" />
+      </div>
+      <div class="form-group">
+        <label>Ano de Publicação</label>
+        <input type="number" id="livroAno" placeholder="Ex: 1899" />
+      </div>
+      <div class="form-group">
+        <label>URL da Capa (imagem)</label>
+        <input type="text" id="livroImageUrl" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" id="livroDescricao" placeholder="Breve descrição do livro" />
+      </div>
+      <div class="form-group">
+        <label>Quantidade Total *</label>
+        <input type="number" id="livroQuantidade" min="1" placeholder="Ex: 5" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalLivro()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLivro()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: LOCAÇÃO ====== -->
+<div class="modal-overlay hidden" id="modalLocacaoOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nova Locação</h3>
+      <button class="modal-close" onclick="fecharModalLocacao()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="locacaoError" class="alert alert-error" style="display:none;"></div>
+      <div class="form-group">
+        <label>Cliente *</label>
+        <select id="locacaoUsuario"></select>
+      </div>
+      <div class="form-group">
+        <label>Livro *</label>
+        <select id="locacaoLivro"></select>
+      </div>
+      <div class="form-group">
+        <label>Data de Devolução Prevista *</label>
+        <input type="date" id="locacaoDataDevolucao" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalLocacao()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLocacao()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: CLIENTE ====== -->
+<div class="modal-overlay hidden" id="modalClienteOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalClienteTitulo">Novo Cliente</h3>
+      <button class="modal-close" onclick="fecharModalCliente()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="clienteError" class="alert alert-error" style="display:none;"></div>
+      <input type="hidden" id="clienteId" />
+      <div class="form-group">
+        <label>Nome *</label>
+        <input type="text" id="clienteNome" placeholder="Nome completo" />
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="clienteEmail" placeholder="email@exemplo.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha *</label>
+        <input type="password" id="clienteSenha" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" id="clienteTelefone" placeholder="(11) 99999-9999" />
+      </div>
+      <div class="form-group">
+        <label>CPF</label>
+        <input type="text" id="clienteCpf" placeholder="000.000.000-00" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalCliente()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  // Verificação de autenticação
+  const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+  if (!usuarioLogado) window.location.href = 'index.html';
+
+  // Preenche dados do usuário logado na sidebar
+  document.getElementById('userName').textContent = usuarioLogado.nome;
+  document.getElementById('userRole').textContent = usuarioLogado.role === 'ADMIN' ? 'Administrador' : 'Cliente';
+  document.getElementById('userAvatar').textContent = usuarioLogado.nome.charAt(0).toUpperCase();
+
+  // ========================
+  // NAVEGAÇÃO
+  // ========================
+  const sections = { dashboard: 'Visão Geral', livros: 'Livros', locacoes: 'Locações', clientes: 'Clientes' };
+
+  function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item')[Object.keys(sections).indexOf(name)].classList.add('active');
+    document.getElementById('pageTitle').textContent = sections[name];
+
+    if (name === 'dashboard') carregarDashboard();
+    if (name === 'livros') carregarLivros();
+    if (name === 'locacoes') carregarLocacoes();
+    if (name === 'clientes') carregarClientes();
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  // ========================
+  // DASHBOARD
+  // ========================
+  async function carregarDashboard() {
+    try {
+      const [livros, locacoes, usuarios] = await Promise.all([
+        api.getLivros(), api.getLocacoes(), api.getUsuarios()
+      ]);
+
+      const disponiveis = livros.reduce((sum, l) => sum + (l.quantidadeDisponivel || 0), 0);
+      const ativas = locacoes.filter(l => l.status === 'ATIVA').length;
+      const clientes = usuarios.filter(u => u.role === 'CLIENTE').length;
+
+      document.getElementById('statTotalLivros').textContent = livros.length;
+      document.getElementById('statDisponiveis').textContent = disponiveis;
+      document.getElementById('statLocacoesAtivas').textContent = ativas;
+      document.getElementById('statClientes').textContent = clientes;
+
+      const recentes = locacoes.slice(-5).reverse();
+      const tbody = document.getElementById('tabelaRecentes');
+      tbody.innerHTML = recentes.length === 0
+        ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação ainda</td></tr>'
+        : recentes.map(l => `
+          <tr>
+            <td>${l.usuario?.nome || '—'}</td>
+            <td>${l.livro?.titulo || '—'}</td>
+            <td>${formatDate(l.dataLocacao)}</td>
+            <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+            <td>${badgeStatus(l.status)}</td>
+          </tr>`).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // ========================
+  // LIVROS
+  // ========================
+  let todosLivros = [];
+
+  async function carregarLivros() {
+    showLoading('tabelaLivros', 6);
+    todosLivros = await api.getLivros();
+    renderLivros(todosLivros);
+  }
+
+  function renderLivros(livros) {
+    const tbody = document.getElementById('tabelaLivros');
+    tbody.innerHTML = livros.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Nenhum livro cadastrado</td></tr>'
+      : livros.map(l => `
+        <tr>
+          <td><strong>${l.titulo}</strong></td>
+          <td>${l.autor}</td>
+          <td>${l.genero || '—'}</td>
+          <td>${l.quantidadeTotal ?? '—'}</td>
+          <td><span class="badge ${l.quantidadeDisponivel > 0 ? 'badge-green' : 'badge-red'}">${l.quantidadeDisponivel ?? 0}</span></td>
+          <td class="actions">
+            <button class="btn btn-secondary btn-sm" onclick="editarLivro(${l.id})">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletarLivro(${l.id})">Excluir</button>
+          </td>
+        </tr>`).join('');
+  }
+
+  function buscarLivros() {
+    const q = document.getElementById('buscaLivro').value.toLowerCase();
+    renderLivros(todosLivros.filter(l => l.titulo.toLowerCase().includes(q)));
+  }
+
+  function abrirModalLivro() {
+    document.getElementById('livroId').value = '';
+    document.getElementById('livroTitulo').value = '';
+    document.getElementById('livroAutor').value = '';
+    document.getElementById('livroGenero').value = '';
+    document.getElementById('livroIsbn').value = '';
+    document.getElementById('livroAno').value = '';
+    document.getElementById('livroImageUrl').value = '';
+    document.getElementById('livroDescricao').value = '';
+    document.getElementById('livroQuantidade').value = '';
+    document.getElementById('modalLivroTitulo').textContent = 'Novo Livro';
+    document.getElementById('livroError').style.display = 'none';
+    document.getElementById('modalLivroOverlay').classList.remove('hidden');
+  }
+
+  function fecharModalLivro() {
+    document.getElementById('modalLivroOverlay').classList.add('hidden');
+  }
+
+  async function editarLivro(id) {
+    const l = todosLivros.find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('livroId').value = l.id;
+    document.getElementById('livroTitulo').value = l.titulo;
+    document.getElementById('livroAutor').value = l.autor;
+    document.getElementById('livroGenero').value = l.genero || '';
+    document.getElementById('livroIsbn').value = l.isbn || '';
+    document.getElementById('livroAno').value = l.anoPublicacao || '';
+    document.getElementById('livroImageUrl').value = l.imageUrl || '';
+    document.getElementById('livroDescricao').value = l.descricao || '';
+    document.getElementById('livroQuantidade').value = l.quantidadeTotal || '';
+    document.getElementById('modalLivroTitulo').textContent = 'Editar Livro';
+    document.getElementById('livroError').style.display = 'none';
+    document.getElementById('modalLivroOverlay').classList.remove('hidden');
+  }
+
+  async function salvarLivro() {
+    const errorEl = document.getElementById('livroError');
+    errorEl.style.display = 'none';
+    const id = document.getElementById('livroId').value;
+    const data = {
+      titulo: document.getElementById('livroTitulo').value,
+      autor: document.getElementById('livroAutor').value,
+      genero: document.getElementById('livroGenero').value,
+      isbn: document.getElementById('livroIsbn').value,
+      anoPublicacao: document.getElementById('livroAno').value ? parseInt(document.getElementById('livroAno').value) : null,
+      imageUrl: document.getElementById('livroImageUrl').value,
+      descricao: document.getElementById('livroDescricao').value,
+      quantidadeTotal: document.getElementById('livroQuantidade').value ? parseInt(document.getElementById('livroQuantidade').value) : null,
+    };
+    try {
+      if (id) { await api.updateLivro(id, data); } else { await api.createLivro(data); }
+      fecharModalLivro();
+      carregarLivros();
+      showToast(id ? 'Livro atualizado com sucesso!' : 'Livro cadastrado com sucesso!');
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function deletarLivro(id) {
+    const ok = await showConfirm('O livro será removido permanentemente.', 'Excluir livro?');
+    if (!ok) return;
+    try {
+      await api.deleteLivro(id);
+      carregarLivros();
+      showToast('Livro excluído.', 'error');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ========================
+  // LOCAÇÕES
+  // ========================
+  async function carregarLocacoes() {
+    showLoading('tabelaLocacoes', 7);
+    const locacoes = await api.getLocacoes();
+    const tbody = document.getElementById('tabelaLocacoes');
+    tbody.innerHTML = locacoes.length === 0
+      ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação</td></tr>'
+      : locacoes.map(l => `
+        <tr>
+          <td>${l.usuario?.nome || '—'}</td>
+          <td>${l.livro?.titulo || '—'}</td>
+          <td>${formatDate(l.dataLocacao)}</td>
+          <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+          <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
+          <td>${badgeStatus(l.status)}</td>
+          <td class="actions">
+            ${l.status === 'ATIVA' ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
+          </td>
+        </tr>`).join('');
+  }
+
+  async function abrirModalLocacao() {
+    const [livros, usuarios] = await Promise.all([api.getLivros(), api.getUsuarios()]);
+
+    const seletorLivro = document.getElementById('locacaoLivro');
+    seletorLivro.innerHTML = livros
+      .filter(l => l.quantidadeDisponivel > 0)
+      .map(l => `<option value="${l.id}">${l.titulo} (${l.quantidadeDisponivel} disp.)</option>`)
+      .join('') || '<option disabled>Nenhum livro disponível</option>';
+
+    const seletorUsuario = document.getElementById('locacaoUsuario');
+    seletorUsuario.innerHTML = usuarios
+      .filter(u => u.role === 'CLIENTE')
+      .map(u => `<option value="${u.id}">${u.nome}</option>`)
+      .join('') || '<option disabled>Nenhum cliente cadastrado</option>';
+
+    // Data mínima: amanhã
+    const amanha = new Date();
+    amanha.setDate(amanha.getDate() + 1);
+    document.getElementById('locacaoDataDevolucao').min = amanha.toISOString().split('T')[0];
+    document.getElementById('locacaoDataDevolucao').value = '';
+    document.getElementById('locacaoError').style.display = 'none';
+    document.getElementById('modalLocacaoOverlay').classList.remove('hidden');
+  }
+
+  function fecharModalLocacao() {
+    document.getElementById('modalLocacaoOverlay').classList.add('hidden');
+  }
+
+  async function salvarLocacao() {
+    const errorEl = document.getElementById('locacaoError');
+    errorEl.style.display = 'none';
+    const data = {
+      livroId: parseInt(document.getElementById('locacaoLivro').value),
+      usuarioId: parseInt(document.getElementById('locacaoUsuario').value),
+      dataDevolucaoPrevista: document.getElementById('locacaoDataDevolucao').value,
+    };
+    try {
+      await api.createLocacao(data);
+      fecharModalLocacao();
+      carregarLocacoes();
+      showToast('Locação registrada com sucesso!');
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function devolver(id) {
+    const ok = await showConfirm('Confirmar a devolução deste livro?', 'Registrar devolução');
+    if (!ok) return;
+    try {
+      await api.devolverLocacao(id);
+      carregarLocacoes();
+      showToast('Devolução registrada com sucesso!');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function deletarLocacao(id) {
+    const ok = await showConfirm('A locação será removida permanentemente.', 'Excluir locação?');
+    if (!ok) return;
+    try {
+      await api.deleteLocacao(id);
+      carregarLocacoes();
+      showToast('Locação excluída.', 'error');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ========================
+  // CLIENTES
+  // ========================
+  async function carregarClientes() {
+    showLoading('tabelaClientes', 6);
+    const usuarios = await api.getUsuarios();
+    const clientes = usuarios.filter(u => u.role === 'CLIENTE');
+    const tbody = document.getElementById('tabelaClientes');
+    tbody.innerHTML = clientes.length === 0
+      ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Nenhum cliente cadastrado</td></tr>'
+      : clientes.map(u => `
+        <tr>
+          <td><strong>${u.nome}</strong></td>
+          <td>${u.email}</td>
+          <td>${u.telefone || '—'}</td>
+          <td>${u.cpf || '—'}</td>
+          <td><span class="badge badge-blue">Cliente</span></td>
+          <td class="actions">
+            <button class="btn btn-secondary btn-sm" onclick="editarCliente(${u.id}, '${u.nome}', '${u.email}', '${u.telefone || ''}', '${u.cpf || ''}')">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletarCliente(${u.id})">Excluir</button>
+          </td>
+        </tr>`).join('');
+  }
+
+  function abrirModalCliente() {
+    document.getElementById('clienteId').value = '';
+    document.getElementById('clienteNome').value = '';
+    document.getElementById('clienteEmail').value = '';
+    document.getElementById('clienteSenha').value = '';
+    document.getElementById('clienteTelefone').value = '';
+    document.getElementById('clienteCpf').value = '';
+    document.getElementById('modalClienteTitulo').textContent = 'Novo Cliente';
+    document.getElementById('clienteError').style.display = 'none';
+    document.getElementById('modalClienteOverlay').classList.remove('hidden');
+  }
+
+  function fecharModalCliente() {
+    document.getElementById('modalClienteOverlay').classList.add('hidden');
+  }
+
+  function editarCliente(id, nome, email, telefone, cpf) {
+    document.getElementById('clienteId').value = id;
+    document.getElementById('clienteNome').value = nome;
+    document.getElementById('clienteEmail').value = email;
+    document.getElementById('clienteSenha').value = '';
+    document.getElementById('clienteTelefone').value = telefone;
+    document.getElementById('clienteCpf').value = cpf;
+    document.getElementById('modalClienteTitulo').textContent = 'Editar Cliente';
+    document.getElementById('clienteError').style.display = 'none';
+    document.getElementById('modalClienteOverlay').classList.remove('hidden');
+  }
+
+  async function salvarCliente() {
+    const errorEl = document.getElementById('clienteError');
+    errorEl.style.display = 'none';
+    const id = document.getElementById('clienteId').value;
+    const data = {
+      nome: document.getElementById('clienteNome').value,
+      email: document.getElementById('clienteEmail').value,
+      senha: document.getElementById('clienteSenha').value,
+      telefone: document.getElementById('clienteTelefone').value,
+      cpf: document.getElementById('clienteCpf').value,
+      role: 'CLIENTE',
+    };
+    try {
+      if (id) { await api.updateUsuario(id, data); } else { await api.createUsuario(data); }
+      fecharModalCliente();
+      carregarClientes();
+      showToast(id ? 'Cliente atualizado com sucesso!' : 'Cliente cadastrado com sucesso!');
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function deletarCliente(id) {
+    const ok = await showConfirm('O cliente será removido permanentemente.', 'Excluir cliente?');
+    if (!ok) return;
+    try {
+      await api.deleteUsuario(id);
+      carregarClientes();
+      showToast('Cliente excluído.', 'error');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ========================
+  // HELPERS
+  // ========================
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+
+  function badgeStatus(status) {
+    const map = { ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red' };
+    const label = { ATIVA: 'Ativa', DEVOLVIDA: 'Devolvida', ATRASADA: 'Atrasada' };
+    return `<span class="badge ${map[status] || 'badge-gray'}">${label[status] || status}</span>`;
+  }
+
+  // ========================
+  // MÁSCARAS
+  // ========================
+  function maskCPF(v) {
+    return v.replace(/\D/g, '').slice(0, 11)
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+
+  function maskPhone(v) {
+    const d = v.replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 10) return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2');
+    return d.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
+  }
+
+  document.getElementById('clienteCpf').addEventListener('input', function() {
+    this.value = maskCPF(this.value);
+  });
+
+  document.getElementById('clienteTelefone').addEventListener('input', function() {
+    this.value = maskPhone(this.value);
+  });
+
+  // ========================
+  // TOAST
+  // ========================
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 3200);
+  }
+
+  // ========================
+  // CONFIRM CUSTOMIZADO
+  // ========================
+  function showConfirm(msg, title = 'Confirmar exclusão') {
+    return new Promise(resolve => {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMsg').textContent = msg;
+      document.getElementById('confirmOverlay').classList.remove('hidden');
+
+      const yes = document.getElementById('confirmYes');
+      const no  = document.getElementById('confirmNo');
+
+      const cleanup = (val) => {
+        document.getElementById('confirmOverlay').classList.add('hidden');
+        yes.replaceWith(yes.cloneNode(true));
+        no.replaceWith(no.cloneNode(true));
+        resolve(val);
+      };
+
+      document.getElementById('confirmYes').addEventListener('click', () => cleanup(true),  { once: true });
+      document.getElementById('confirmNo').addEventListener('click',  () => cleanup(false), { once: true });
+    });
+  }
+
+  // ========================
+  // LOADING NAS TABELAS
+  // ========================
+  function showLoading(tbodyId, cols) {
+    document.getElementById(tbodyId).innerHTML =
+      `<tr><td colspan="${cols}" class="loading-cell"><div class="spinner"></div></td></tr>`;
+  }
+
+  // Carrega dashboard ao entrar
+  carregarDashboard();
+</script>
+</body>
+</html>

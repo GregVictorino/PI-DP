@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca — Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="login-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </div>
+    <h1>Biblioteca</h1>
+    <p class="login-subtitle">Sistema de Locação de Livros</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="seu@email.com" required />
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="••••••••" required />
+      </div>
+
+      <div id="loginError" class="alert alert-error" style="display:none;"></div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+        Entrar
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const API = 'http://localhost:8080/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = document.getElementById('loginBtn');
+      const errorEl = document.getElementById('loginError');
+
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+      errorEl.style.display = 'none';
+
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      try {
+        const res = await fetch(`${API}/usuarios/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.erro || 'Email ou senha inválidos');
+        }
+
+        const usuario = await res.json();
+        sessionStorage.setItem('usuario', JSON.stringify(usuario));
+        window.location.href = 'dashboard.html';
+
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+        btn.textContent = 'Entrar';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
