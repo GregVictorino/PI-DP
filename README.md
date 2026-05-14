@@ -125,10 +125,13 @@ Ou pelo IntelliJ: abra a pasta `demo` e clique em ▶️ Run.
 
 3. **Acesse no navegador**
 
-| Página | URL |
-|--------|-----|
-| Login | http://localhost:8080 |
-| Catálogo público | http://localhost:8080/catalogo.html |
+| Página | URL | Acesso |
+|--------|-----|--------|
+| Login | http://localhost:8080 | Público |
+| Catálogo público | http://localhost:8080/catalogo.html | Público |
+| Painel do administrador | http://localhost:8080/dashboard.html | Admin |
+| Portal do cliente | http://localhost:8080/cliente.html | Cliente |
+| Console H2 (banco dev) | http://localhost:8080/h2-console | Dev |
 
 4. **Login padrão (admin)**
 ```
@@ -146,21 +149,66 @@ Resultado esperado: **11 testes, 0 falhas**.
 
 ## 🔌 Endpoints da API
 
+### Usuários
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `POST` | `/api/usuarios/login` | Autenticação |
+| `POST` | `/api/usuarios/login` | Autenticação (retorna dados do usuário) |
+| `PUT` | `/api/usuarios/resetar-senha` | Redefinir senha (esqueci a senha) |
+| `GET` | `/api/usuarios` | Listar todos os usuários |
+| `GET` | `/api/usuarios/{id}` | Buscar usuário por ID |
+| `POST` | `/api/usuarios` | Cadastrar novo usuário |
+| `PUT` | `/api/usuarios/{id}` | Atualizar usuário |
+| `DELETE` | `/api/usuarios/{id}` | Excluir usuário |
+
+### Livros
+| Método | Rota | Descrição |
+|--------|------|-----------|
 | `GET` | `/api/livros` | Listar todos os livros |
+| `GET` | `/api/livros/{id}` | Buscar livro por ID |
 | `POST` | `/api/livros` | Cadastrar livro |
 | `PUT` | `/api/livros/{id}` | Atualizar livro |
 | `DELETE` | `/api/livros/{id}` | Excluir livro |
+
+### Locações
+| Método | Rota | Descrição |
+|--------|------|-----------|
 | `GET` | `/api/locacoes` | Listar todas as locações |
-| `POST` | `/api/locacoes` | Criar locação |
+| `GET` | `/api/locacoes/{id}` | Buscar locação por ID |
+| `GET` | `/api/locacoes/ativas` | Listar apenas locações ativas |
+| `GET` | `/api/locacoes/usuario/{usuarioId}` | Listar locações de um cliente |
+| `POST` | `/api/locacoes` | Criar nova locação |
 | `PUT` | `/api/locacoes/{id}/devolver` | Registrar devolução |
 | `DELETE` | `/api/locacoes/{id}` | Excluir locação |
-| `GET` | `/api/usuarios` | Listar usuários |
-| `POST` | `/api/usuarios` | Cadastrar usuário |
-| `PUT` | `/api/usuarios/{id}` | Atualizar usuário |
-| `DELETE` | `/api/usuarios/{id}` | Excluir usuário |
+
+---
+
+## 🗄️ Banco de Dados
+
+O projeto usa bancos diferentes dependendo do ambiente:
+
+### Desenvolvimento (padrão ao rodar localmente)
+- **H2 Database** — banco em memória, sobe junto com a aplicação, sem configuração extra
+- Os dados são **resetados** toda vez que a aplicação é reiniciada
+- Console visual disponível em `http://localhost:8080/h2-console`
+
+```
+JDBC URL:  jdbc:h2:mem:biblioteca
+Usuário:   sa
+Senha:     (vazio)
+```
+
+### Produção (deploy)
+- **PostgreSQL** via **Supabase**
+- As configurações estão comentadas no `application.properties`, prontas para ativar
+- Basta substituir `HOST`, `usuário` e `senha` pelos dados do Supabase
+
+```properties
+spring.datasource.url=jdbc:postgresql://HOST:5432/postgres
+spring.datasource.username=postgres
+spring.datasource.password=SUA_SENHA
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+```
 
 ---
 
