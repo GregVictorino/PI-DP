@@ -269,7 +269,7 @@
 
         const usuario = await res.json();
         sessionStorage.setItem('usuario', JSON.stringify(usuario));
-        window.location.href = 'dashboard.html';
+        window.location.href = usuario.role === 'ADMIN' ? 'dashboard.html' : 'cliente.html';
 
       } catch (err) {
         errorEl.textContent = err.message;

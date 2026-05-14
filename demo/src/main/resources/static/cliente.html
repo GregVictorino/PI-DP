@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca — Área do Cliente</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── NAVBAR ── */
+    .navbar {
+      background: #1e293b;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .navbar-user span {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 24px 28px 0;
+      border-bottom: 2px solid #e2e8f0;
+      background: #fff;
+    }
+    .tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+    .tab-content { display: none; padding: 28px; }
+    .tab-content.active { display: block; }
+
+    /* ── BOOK GRID ── */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .book-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .book-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    .book-cover {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+    }
+    .book-cover svg { opacity: 0.4; }
+    .book-info { padding: 14px; }
+    .book-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .book-author {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .book-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    /* ── FILTROS ── */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-bar input,
+    .filter-bar select {
+      padding: 9px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+    .filter-bar input { flex: 1; min-width: 200px; }
+    .filter-bar input:focus,
+    .filter-bar select:focus { border-color: #2563eb; }
+
+    /* ── STATS CLIENTE ── */
+    .cliente-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .cstat {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+    .cstat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+    .cstat-label { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+    @media (max-width: 600px) {
+      .cliente-stats { grid-template-columns: 1fr; }
+      .tabs { padding: 16px 16px 0; }
+      .tab-content { padding: 16px; }
+      .books-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body style="background:#f1f5f9; min-height:100vh;">
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Modal de locação -->
+<div class="modal-overlay hidden" id="modalLocarOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalLocarTitulo">Solicitar Locação</h3>
+      <button class="modal-close" onclick="fecharModalLocar()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="locarError" class="alert alert-error" style="display:none;"></div>
+      <input type="hidden" id="locarLivroId" />
+      <div class="form-group">
+        <label>Livro</label>
+        <input type="text" id="locarLivroNome" disabled style="background:#f8fafc;" />
+      </div>
+      <div class="form-group">
+        <label>Data de Devolução *</label>
+        <input type="date" id="locarDataDevolucao" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalLocar()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarLocacao()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    Biblioteca
+  </div>
+  <div class="navbar-user">
+    <span id="navNome">Carregando...</span>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('catalogo')">📚 Catálogo</button>
+  <button class="tab" onclick="showTab('minhas')">📋 Minhas Locações</button>
+</div>
+
+<!-- TAB: CATÁLOGO -->
+<div id="tab-catalogo" class="tab-content active">
+  <div class="filter-bar">
+    <input type="text" id="buscaTitulo" placeholder="Buscar por título ou autor..." oninput="filtrarLivros()" />
+    <select id="filtroGenero" onchange="filtrarLivros()">
+      <option value="">Todos os gêneros</option>
+    </select>
+    <select id="filtroDisp" onchange="filtrarLivros()">
+      <option value="">Todos</option>
+      <option value="1">Disponíveis</option>
+      <option value="0">Indisponíveis</option>
+    </select>
+  </div>
+
+  <div class="books-grid" id="booksGrid"></div>
+</div>
+
+<!-- TAB: MINHAS LOCAÇÕES -->
+<div id="tab-minhas" class="tab-content">
+  <div class="cliente-stats">
+    <div class="cstat">
+      <div class="cstat-value" id="statAtivas">—</div>
+      <div class="cstat-label">Ativas</div>
+    </div>
+    <div class="cstat">
+      <div class="cstat-value" id="statDevolvidas">—</div>
+      <div class="cstat-label">Devolvidas</div>
+    </div>
+    <div class="cstat" style="border: 1.5px solid #fecaca;">
+      <div class="cstat-value" id="statAtrasadas" style="color:#dc2626;">—</div>
+      <div class="cstat-label" style="color:#dc2626;">Atrasadas</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Livro</th>
+            <th>Data Locação</th>
+            <th>Devolução Prevista</th>
+            <th>Devolução Real</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaMinhas"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  const usuario = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+  if (!usuario) window.location.href = 'index.html';
+  if (usuario.role === 'ADMIN') window.location.href = 'dashboard.html';
+
+  document.getElementById('navNome').textContent = 'Olá, ' + usuario.nome.split(' ')[0] + '!';
+
+  let todosLivros = [];
+
+  // ========================
+  // TABS
+  // ========================
+  function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.querySelectorAll('.tab')[name === 'catalogo' ? 0 : 1].classList.add('active');
+    if (name === 'minhas') carregarMinhasLocacoes();
+  }
+
+  // ========================
+  // CATÁLOGO
+  // ========================
+  async function carregarCatalogo() {
+    document.getElementById('booksGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
+    todosLivros = await api.getLivros();
+
+    // popula filtro de gêneros
+    const generos = [...new Set(todosLivros.map(l => l.genero).filter(Boolean))].sort();
+    const sel = document.getElementById('filtroGenero');
+    generos.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g; opt.textContent = g;
+      sel.appendChild(opt);
+    });
+
+    renderBooks(todosLivros);
+  }
+
+  function filtrarLivros() {
+    const busca = document.getElementById('buscaTitulo').value.toLowerCase();
+    const genero = document.getElementById('filtroGenero').value;
+    const disp = document.getElementById('filtroDisp').value;
+
+    const filtrados = todosLivros.filter(l => {
+      const matchBusca = !busca || l.titulo.toLowerCase().includes(busca) || (l.autor||'').toLowerCase().includes(busca);
+      const matchGenero = !genero || l.genero === genero;
+      const matchDisp = disp === '' || (disp === '1' ? l.quantidadeDisponivel > 0 : l.quantidadeDisponivel <= 0);
+      return matchBusca && matchGenero && matchDisp;
+    });
+    renderBooks(filtrados);
+  }
+
+  function renderBooks(livros) {
+    const grid = document.getElementById('booksGrid');
+    if (livros.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#94a3b8;padding:40px">Nenhum livro encontrado</div>';
+      return;
+    }
+    grid.innerHTML = livros.map(l => `
+      <div class="book-card">
+        <div class="book-cover">
+          ${l.imageUrl
+            ? `<img src="${l.imageUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<svg width=48 height=48 viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1\\'><path d=\\'M4 19.5A2.5 2.5 0 0 1 6.5 17H20\\'/><path d=\\'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\\'/></svg>'" />`
+            : `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`
+          }
+        </div>
+        <div class="book-info">
+          <div class="book-title" title="${l.titulo}">${l.titulo}</div>
+          <div class="book-author">${l.autor}</div>
+          ${l.genero ? `<span class="badge badge-blue" style="font-size:11px">${l.genero}</span>` : ''}
+          <div class="book-footer">
+            <span class="badge ${l.quantidadeDisponivel > 0 ? 'badge-green' : 'badge-red'}">
+              ${l.quantidadeDisponivel > 0 ? l.quantidadeDisponivel + ' disp.' : 'Indisponível'}
+            </span>
+            ${l.quantidadeDisponivel > 0
+              ? `<button class="btn btn-primary btn-sm" onclick="abrirModalLocar(${l.id}, '${l.titulo.replace(/'/g, "\\'")}')">Locar</button>`
+              : `<button class="btn btn-secondary btn-sm" disabled>Indisponível</button>`
+            }
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ========================
+  // LOCAR
+  // ========================
+  function abrirModalLocar(livroId, titulo) {
+    document.getElementById('locarLivroId').value = livroId;
+    document.getElementById('locarLivroNome').value = titulo;
+    const amanha = new Date();
+    amanha.setDate(amanha.getDate() + 1);
+    document.getElementById('locarDataDevolucao').min = amanha.toISOString().split('T')[0];
+    document.getElementById('locarDataDevolucao').value = '';
+    document.getElementById('locarError').style.display = 'none';
+    document.getElementById('modalLocarOverlay').classList.remove('hidden');
+  }
+
+  function fecharModalLocar() {
+    document.getElementById('modalLocarOverlay').classList.add('hidden');
+  }
+
+  async function confirmarLocacao() {
+    const errorEl = document.getElementById('locarError');
+    const data = document.getElementById('locarDataDevolucao').value;
+    if (!data) {
+      errorEl.textContent = 'Selecione a data de devolução';
+      errorEl.style.display = 'block';
+      return;
+    }
+    try {
+      await api.createLocacao({
+        livroId: parseInt(document.getElementById('locarLivroId').value),
+        usuarioId: usuario.id,
+        dataDevolucaoPrevista: data
+      });
+      fecharModalLocar();
+      showToast('Locação realizada com sucesso!');
+      carregarCatalogo();
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  // ========================
+  // MINHAS LOCAÇÕES
+  // ========================
+  async function carregarMinhasLocacoes() {
+    document.getElementById('tabelaMinhas').innerHTML =
+      '<tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>';
+    const locacoes = await api.getLocacoesPorUsuario(usuario.id);
+
+    document.getElementById('statAtivas').textContent    = locacoes.filter(l => l.status === 'ATIVA').length;
+    document.getElementById('statDevolvidas').textContent = locacoes.filter(l => l.status === 'DEVOLVIDA').length;
+    document.getElementById('statAtrasadas').textContent  = locacoes.filter(l => l.status === 'ATRASADA').length;
+
+    const tbody = document.getElementById('tabelaMinhas');
+    tbody.innerHTML = locacoes.length === 0
+      ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">Você ainda não fez nenhuma locação</td></tr>'
+      : locacoes.map(l => `
+        <tr>
+          <td><strong>${l.livro?.titulo || '—'}</strong><br><span style="font-size:12px;color:#64748b">${l.livro?.autor || ''}</span></td>
+          <td>${formatDate(l.dataLocacao)}</td>
+          <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+          <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
+          <td>${badgeStatus(l.status)}</td>
+        </tr>`).join('');
+  }
+
+  // ========================
+  // HELPERS
+  // ========================
+  function logout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+
+  function badgeStatus(s) {
+    const map   = { ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red' };
+    const label = { ATIVA: 'Ativa', DEVOLVIDA: 'Devolvida', ATRASADA: 'Atrasada' };
+    return `<span class="badge ${map[s] || 'badge-gray'}">${label[s] || s}</span>`;
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
+  }
+
+  carregarCatalogo();
+</script>
+</body>
+</html>
