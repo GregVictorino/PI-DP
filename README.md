@@ -40,13 +40,13 @@ Sistema web completo para gerenciamento de uma biblioteca, com controle de acerv
 | Tecnologia | Versão | Uso |
 |------------|--------|-----|
 | Java | 21 | Linguagem principal |
-| Spring Boot | 3.3.5 | Framework principal |
-| Spring Data JPA | — | Persistência de dados |
-| Hibernate | — | ORM |
-| H2 Database | — | Banco de dados em desenvolvimento |
-| PostgreSQL | — | Banco de dados em produção |
-| Spring Scheduler | — | Tarefas automáticas |
-| Maven | — | Gerenciamento de dependências |
+| Spring Boot | 3.3.5 | Framework principal (inclui Tomcat, Scheduler) |
+| Spring Boot Starter Web | — | Servidor HTTP e serving dos arquivos estáticos |
+| Spring Boot Starter Data JPA | — | Persistência de dados com Hibernate (ORM) |
+| Spring Boot Starter Validation | — | Validação de campos nos DTOs (`@NotBlank`, `@NotNull`) |
+| H2 Database | — | Banco de dados em memória para desenvolvimento |
+| PostgreSQL | — | Banco de dados para produção |
+| Maven | — | Gerenciamento de dependências e build |
 
 ### Front-end
 | Tecnologia | Uso |
