@@ -1,0 +1,177 @@
+# 📚 Biblioteca — Sistema de Locação de Livros
+
+Projeto Integrador desenvolvido no curso de **Análise e Desenvolvimento de Sistemas (ADS)** — 3º Semestre.
+
+Sistema web completo para gerenciamento de uma biblioteca, com controle de acervo, locações, clientes e relatórios visuais.
+
+---
+
+## 🚀 Funcionalidades
+
+### 👤 Administrador
+- Login com controle de acesso por perfil
+- Cadastro e gerenciamento de **livros** (CRUD completo)
+- Cadastro e gerenciamento de **clientes**
+- Registro e controle de **locações**
+- Devolução de livros com atualização automática do estoque
+- Dashboard com **gráficos** de status das locações e livros por gênero
+- Tabela de locações recentes
+
+### 📖 Cliente
+- Acesso ao **catálogo de livros** com busca e filtros
+- Solicitação de locação diretamente pelo portal
+- Visualização do histórico de locações (ativas, devolvidas, atrasadas)
+- Estatísticas pessoais de uso
+
+### 🌐 Catálogo Público
+- Página pública sem necessidade de login
+- Busca por título, autor, gênero e disponibilidade
+- Modal com detalhes completos do livro
+
+### ⚙️ Automações
+- Detecção automática de **locações atrasadas** toda meia-noite
+- Controle de estoque em tempo real (decrementa ao locar, incrementa ao devolver)
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Back-end
+| Tecnologia | Versão | Uso |
+|------------|--------|-----|
+| Java | 21 | Linguagem principal |
+| Spring Boot | 3.3.5 | Framework principal |
+| Spring Data JPA | — | Persistência de dados |
+| Hibernate | — | ORM |
+| H2 Database | — | Banco de dados em desenvolvimento |
+| PostgreSQL | — | Banco de dados em produção |
+| Spring Scheduler | — | Tarefas automáticas |
+| Maven | — | Gerenciamento de dependências |
+
+### Front-end
+| Tecnologia | Uso |
+|------------|-----|
+| HTML5 | Estrutura das páginas |
+| CSS3 | Estilização e responsividade |
+| JavaScript (ES6+) | Interatividade e consumo da API |
+| Chart.js | Gráficos do dashboard |
+| Fetch API | Comunicação com o back-end |
+
+### Testes
+| Tecnologia | Uso |
+|------------|-----|
+| JUnit 5 | Framework de testes unitários |
+| Mockito | Mock de dependências |
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+demo/
+├── src/
+│   ├── main/
+│   │   ├── java/Biblioteca/demo/
+│   │   │   ├── config/
+│   │   │   │   ├── DataInitializer.java      # Cria admin padrão na inicialização
+│   │   │   │   └── LocacaoScheduler.java     # Detecta atrasos automaticamente
+│   │   │   ├── controller/                   # Endpoints REST (/api/...)
+│   │   │   ├── dto/                          # Objetos de transferência de dados
+│   │   │   ├── exception/                    # Tratamento de erros customizado
+│   │   │   ├── model/                        # Entidades JPA (Livro, Usuario, Locacao)
+│   │   │   ├── repository/                   # Interfaces Spring Data JPA
+│   │   │   ├── service/                      # Regras de negócio
+│   │   │   └── DemoApplication.java          # Ponto de entrada
+│   │   └── resources/
+│   │       ├── static/                       # Frontend (servido em localhost:8080)
+│   │       │   ├── index.html                # Tela de login
+│   │       │   ├── dashboard.html            # Painel do administrador
+│   │       │   ├── cliente.html              # Portal do cliente
+│   │       │   ├── catalogo.html             # Catálogo público
+│   │       │   ├── css/style.css             # Estilos globais
+│   │       │   └── js/api.js                 # Funções de comunicação com a API
+│   │       └── application.properties        # Configurações da aplicação
+│   └── test/
+│       └── java/Biblioteca/demo/
+│           ├── service/
+│           │   ├── LivroServiceTest.java     # 5 testes unitários do serviço de livros
+│           │   └── LocacaoServiceTest.java   # 5 testes unitários do serviço de locações
+│           └── DemoApplicationTests.java     # Teste de carregamento do contexto
+└── pom.xml
+```
+
+---
+
+## ▶️ Como Rodar Localmente
+
+### Pré-requisitos
+- Java 21+
+- Maven (ou usar o `./mvnw` incluso no projeto)
+- IntelliJ IDEA (recomendado)
+
+### Passo a passo
+
+1. **Clone o repositório**
+```bash
+git clone https://github.com/GregVictorino/PI-DP.git
+cd PI-DP/demo
+```
+
+2. **Rode a aplicação**
+```bash
+./mvnw spring-boot:run
+```
+Ou pelo IntelliJ: abra a pasta `demo` e clique em ▶️ Run.
+
+3. **Acesse no navegador**
+
+| Página | URL |
+|--------|-----|
+| Login | http://localhost:8080 |
+| Catálogo público | http://localhost:8080/catalogo.html |
+
+4. **Login padrão (admin)**
+```
+Email: admin@biblioteca.com
+Senha: admin123
+```
+
+### Rodando os testes
+```bash
+./mvnw test
+```
+Resultado esperado: **11 testes, 0 falhas**.
+
+---
+
+## 🔌 Endpoints da API
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/api/usuarios/login` | Autenticação |
+| `GET` | `/api/livros` | Listar todos os livros |
+| `POST` | `/api/livros` | Cadastrar livro |
+| `PUT` | `/api/livros/{id}` | Atualizar livro |
+| `DELETE` | `/api/livros/{id}` | Excluir livro |
+| `GET` | `/api/locacoes` | Listar todas as locações |
+| `POST` | `/api/locacoes` | Criar locação |
+| `PUT` | `/api/locacoes/{id}/devolver` | Registrar devolução |
+| `DELETE` | `/api/locacoes/{id}` | Excluir locação |
+| `GET` | `/api/usuarios` | Listar usuários |
+| `POST` | `/api/usuarios` | Cadastrar usuário |
+| `PUT` | `/api/usuarios/{id}` | Atualizar usuário |
+| `DELETE` | `/api/usuarios/{id}` | Excluir usuário |
+
+---
+
+## 👥 Equipe
+
+Desenvolvido por **Greg Victorino** e **Duda** — ADS 3º Semestre.
+
+---
+
+## 📝 Observações
+
+- O banco de dados é **H2 em memória** no ambiente de desenvolvimento — os dados são resetados ao reiniciar a aplicação.
+- O usuário administrador padrão é criado automaticamente na primeira inicialização.
+- Para produção, configurar as variáveis de ambiente do PostgreSQL no `application.properties`.
