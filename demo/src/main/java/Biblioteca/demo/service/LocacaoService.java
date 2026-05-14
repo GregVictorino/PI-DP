@@ -10,6 +10,7 @@ import Biblioteca.demo.repository.LivroRepository;
 import Biblioteca.demo.repository.LocacaoRepository;
 import Biblioteca.demo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,6 +49,7 @@ public class LocacaoService {
         return locacaoRepository.findByStatus(StatusLocacao.ATIVA);
     }
 
+    @Transactional
     public Locacao criar(LocacaoRequestDTO dto) {
         Livro livro = livroRepository.findById(dto.getLivroId())
                 .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
@@ -71,6 +73,7 @@ public class LocacaoService {
         return locacaoRepository.save(locacao);
     }
 
+    @Transactional
     public Locacao devolver(Long id) {
         Locacao locacao = buscarPorId(id);
         if (locacao.getStatus() == StatusLocacao.DEVOLVIDA) {

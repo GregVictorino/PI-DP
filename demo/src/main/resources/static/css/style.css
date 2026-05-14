@@ -1,6 +1,4 @@
-/* ========================
-   RESET & BASE
-======================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -13,9 +11,7 @@ body {
   color: #1e293b;
 }
 
-/* ========================
-   LOGIN PAGE
-======================== */
+
 .login-page {
   display: flex;
   align-items: center;
@@ -51,9 +47,7 @@ body {
   margin-bottom: 32px;
 }
 
-/* ========================
-   FORM
-======================== */
+
 .form-group {
   text-align: left;
   margin-bottom: 18px;
@@ -87,9 +81,7 @@ body {
   border-color: #2563eb;
 }
 
-/* ========================
-   BUTTONS
-======================== */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -154,9 +146,7 @@ body {
   font-size: 12px;
 }
 
-/* ========================
-   ALERTS
-======================== */
+
 .alert {
   padding: 10px 14px;
   border-radius: 8px;
@@ -176,9 +166,6 @@ body {
   border: 1px solid #bbf7d0;
 }
 
-/* ========================
-   DASHBOARD LAYOUT
-======================== */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -294,7 +281,7 @@ body {
   color: #64748b;
 }
 
-/* Main content */
+
 .main-content {
   flex: 1;
   display: flex;
@@ -323,9 +310,7 @@ body {
   overflow-y: auto;
 }
 
-/* ========================
-   SECTIONS
-======================== */
+
 .section {
   display: none;
 }
@@ -334,9 +319,7 @@ body {
   display: block;
 }
 
-/* ========================
-   STAT CARDS
-======================== */
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -382,9 +365,7 @@ body {
   margin-top: 2px;
 }
 
-/* ========================
-   CARDS / PANELS
-======================== */
+
 .card {
   background: #fff;
   border-radius: 12px;
@@ -410,9 +391,7 @@ body {
   padding: 24px;
 }
 
-/* ========================
-   TABLE
-======================== */
+
 .table-wrapper {
   overflow-x: auto;
 }
@@ -454,9 +433,7 @@ tbody tr:hover {
   gap: 6px;
 }
 
-/* ========================
-   BADGES
-======================== */
+
 .badge {
   display: inline-block;
   padding: 3px 10px;
@@ -471,9 +448,7 @@ tbody tr:hover {
 .badge-gray   { background: #f1f5f9; color: #64748b; }
 .badge-orange { background: #ffedd5; color: #ea580c; }
 
-/* ========================
-   MODAL
-======================== */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -537,9 +512,7 @@ tbody tr:hover {
   gap: 10px;
 }
 
-/* ========================
-   EMPTY STATE
-======================== */
+
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -555,9 +528,7 @@ tbody tr:hover {
   font-size: 15px;
 }
 
-/* ========================
-   RESPONSIVE
-======================== */
+
 @media (max-width: 768px) {
   .sidebar {
     width: 200px;
@@ -597,9 +568,7 @@ tbody tr:hover {
   }
 }
 
-/* ========================
-   ANIMAÇÃO DE ENTRADA (LOGIN)
-======================== */
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -609,9 +578,7 @@ tbody tr:hover {
   animation: fadeInUp 0.45s ease both;
 }
 
-/* ========================
-   FORÇA DE SENHA
-======================== */
+
 .strength-bar {
   height: 4px;
   border-radius: 4px;
@@ -632,9 +599,7 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-/* ========================
-   TOAST NOTIFICATIONS
-======================== */
+
 #toast-container {
   position: fixed;
   bottom: 24px;
@@ -667,9 +632,7 @@ tbody tr:hover {
 .toast-error   { background: #dc2626; }
 .toast-info    { background: #2563eb; }
 
-/* ========================
-   LOADING SPINNER
-======================== */
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -689,9 +652,6 @@ tbody tr:hover {
   padding: 32px !important;
 }
 
-/* ========================
-   MODAL DE CONFIRMAÇÃO
-======================== */
 .confirm-overlay {
   position: fixed;
   inset: 0;
