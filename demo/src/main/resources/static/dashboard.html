@@ -1015,13 +1015,19 @@
     }
   }
 
+  function refreshAposDecisao() {
+    // Atualiza a seção que estiver visível + dashboard (badge)
+    if (document.getElementById('sec-solicitacoes').classList.contains('active')) carregarSolicitacoes();
+    if (document.getElementById('sec-locacoes').classList.contains('active'))     carregarLocacoes();
+    carregarDashboard();
+  }
+
   async function aprovarLocacao(id) {
-    const ok = await showConfirm('Aprovar esta solicitação? O livro será reservado para o cliente.', 'Aprovar solicitação');
+    const ok = await showConfirm('Aprovar esta solicitação? O livro será reservado para o cliente.', '✔ Aprovar solicitação');
     if (!ok) return;
     try {
       await api.aprovarLocacao(id);
-      carregarSolicitacoes();
-      carregarDashboard();
+      refreshAposDecisao();
       showToast('Solicitação aprovada! Locação ativa.');
     } catch (e) {
       showToast(e.message, 'error');
@@ -1029,12 +1035,11 @@
   }
 
   async function rejeitarLocacao(id) {
-    const ok = await showConfirm('Rejeitar esta solicitação de locação?', 'Rejeitar solicitação');
+    const ok = await showConfirm('Tem certeza que deseja rejeitar esta solicitação?', '✘ Rejeitar solicitação');
     if (!ok) return;
     try {
       await api.rejeitarLocacao(id);
-      carregarSolicitacoes();
-      carregarDashboard();
+      refreshAposDecisao();
       showToast('Solicitação rejeitada.', 'error');
     } catch (e) {
       showToast(e.message, 'error');
