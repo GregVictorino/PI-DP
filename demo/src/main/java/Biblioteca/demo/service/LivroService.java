@@ -30,6 +30,14 @@ public class LivroService {
         return livroRepository.findByTituloContainingIgnoreCase(titulo);
     }
 
+    public List<Livro> buscarComFiltros(String busca, String genero, Boolean disponivel) {
+        return livroRepository.buscarComFiltros(
+                busca   != null ? busca   : "",
+                genero  != null ? genero  : "",
+                disponivel
+        );
+    }
+
     public Livro criar(LivroDTO dto) {
         Livro livro = new Livro();
         livro.setTitulo(dto.getTitulo());

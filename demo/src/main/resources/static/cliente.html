@@ -284,6 +284,8 @@
   // ========================
   // CATÁLOGO
   // ========================
+  let filtroTimer = null;
+
   async function carregarCatalogo() {
     document.getElementById('booksGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
     todosLivros = await api.getLivros();
@@ -291,6 +293,7 @@
     // popula filtro de gêneros
     const generos = [...new Set(todosLivros.map(l => l.genero).filter(Boolean))].sort();
     const sel = document.getElementById('filtroGenero');
+    sel.innerHTML = '<option value="">Todos os gêneros</option>';
     generos.forEach(g => {
       const opt = document.createElement('option');
       opt.value = g; opt.textContent = g;
@@ -300,18 +303,25 @@
     renderBooks(todosLivros);
   }
 
+  // Busca no back-end com debounce
   function filtrarLivros() {
-    const busca = document.getElementById('buscaTitulo').value.toLowerCase();
-    const genero = document.getElementById('filtroGenero').value;
-    const disp = document.getElementById('filtroDisp').value;
+    clearTimeout(filtroTimer);
+    filtroTimer = setTimeout(async () => {
+      const busca      = document.getElementById('buscaTitulo').value.trim();
+      const genero     = document.getElementById('filtroGenero').value;
+      const dispVal    = document.getElementById('filtroDisp').value;
+      const disponivel = dispVal === '1' ? true : dispVal === '0' ? false : undefined;
 
-    const filtrados = todosLivros.filter(l => {
-      const matchBusca = !busca || l.titulo.toLowerCase().includes(busca) || (l.autor||'').toLowerCase().includes(busca);
-      const matchGenero = !genero || l.genero === genero;
-      const matchDisp = disp === '' || (disp === '1' ? l.quantidadeDisponivel > 0 : l.quantidadeDisponivel <= 0);
-      return matchBusca && matchGenero && matchDisp;
-    });
-    renderBooks(filtrados);
+      document.getElementById('booksGrid').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
+
+      try {
+        const resultado = await api.getLivros({ busca, genero, disponivel });
+        renderBooks(resultado);
+      } catch (e) {
+        renderBooks([]);
+      }
+    }, 350);
   }
 
   function renderBooks(livros) {

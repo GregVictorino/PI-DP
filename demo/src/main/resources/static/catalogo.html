@@ -464,6 +464,7 @@
 <script src="js/api.js"></script>
 <script>
   let todosLivros = [];
+  let filtroTimer = null;
 
   // ========================
   // INICIALIZAÇÃO
@@ -496,21 +497,26 @@
   }
 
   // ========================
-  // FILTRO
+  // FILTRO — busca no back-end com debounce
   // ========================
   function filtrar() {
-    const busca  = document.getElementById('buscaTitulo').value.toLowerCase().trim();
-    const genero = document.getElementById('filtroGenero').value;
-    const disp   = document.getElementById('filtroDisp').value;
+    clearTimeout(filtroTimer);
+    filtroTimer = setTimeout(async () => {
+      const busca     = document.getElementById('buscaTitulo').value.trim();
+      const genero    = document.getElementById('filtroGenero').value;
+      const dispVal   = document.getElementById('filtroDisp').value;
+      const disponivel = dispVal === '1' ? true : dispVal === '0' ? false : undefined;
 
-    const resultado = todosLivros.filter(l => {
-      const okBusca  = !busca  || l.titulo.toLowerCase().includes(busca) || (l.autor||'').toLowerCase().includes(busca);
-      const okGenero = !genero || l.genero === genero;
-      const okDisp   = disp === '' || (disp === '1' ? l.quantidadeDisponivel > 0 : l.quantidadeDisponivel <= 0);
-      return okBusca && okGenero && okDisp;
-    });
+      document.getElementById('booksGrid').innerHTML =
+        '<div class="loading-grid"><div class="spinner"></div></div>';
 
-    renderLivros(resultado);
+      try {
+        const resultado = await api.getLivros({ busca, genero, disponivel });
+        renderLivros(resultado);
+      } catch (e) {
+        renderLivros([]);
+      }
+    }, 350);
   }
 
   // ========================

@@ -462,33 +462,25 @@
 
   async function carregarDashboard() {
     try {
-      const [livros, locacoes, usuarios] = await Promise.all([
-        api.getLivros(), api.getLocacoes(), api.getUsuarios()
-      ]);
+      // Uma única chamada traz todos os dados do dashboard
+      const r = await api.getDashboardResumo();
 
-      const disponiveis = livros.reduce((sum, l) => sum + (l.quantidadeDisponivel || 0), 0);
-      const ativas      = locacoes.filter(l => l.status === 'ATIVA').length;
-      const devolvidas  = locacoes.filter(l => l.status === 'DEVOLVIDA').length;
-      const atrasadas   = locacoes.filter(l => l.status === 'ATRASADA').length;
-      const clientes    = usuarios.filter(u => u.role === 'CLIENTE').length;
-
-      document.getElementById('statTotalLivros').textContent    = livros.length;
-      document.getElementById('statDisponiveis').textContent    = disponiveis;
-      document.getElementById('statLocacoesAtivas').textContent = ativas;
-      document.getElementById('statClientes').textContent       = clientes;
+      document.getElementById('statTotalLivros').textContent    = r.totalLivros;
+      document.getElementById('statDisponiveis').textContent    = r.totalDisponiveis;
+      document.getElementById('statLocacoesAtivas').textContent = r.locacoesAtivas;
+      document.getElementById('statClientes').textContent       = r.totalClientes;
 
       // ── GRÁFICO 1: Donut de status ──
-      renderChartStatus(ativas, devolvidas, atrasadas);
+      renderChartStatus(r.locacoesAtivas, r.locacoesDevolvidas, r.locacoesAtrasadas);
 
       // ── GRÁFICO 2: Barras de gêneros ──
-      renderChartGeneros(livros);
+      renderChartGenerosMapa(r.livrosPorGenero);
 
       // ── Tabela de recentes ──
-      const recentes = locacoes.slice(-5).reverse();
       const tbody = document.getElementById('tabelaRecentes');
-      tbody.innerHTML = recentes.length === 0
+      tbody.innerHTML = !r.locacoesRecentes || r.locacoesRecentes.length === 0
         ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação ainda</td></tr>'
-        : recentes.map(l => `
+        : r.locacoesRecentes.map(l => `
           <tr>
             <td>${l.usuario?.nome || '—'}</td>
             <td>${l.livro?.titulo || '—'}</td>
@@ -549,20 +541,17 @@
       </div>`).join('');
   }
 
-  function renderChartGeneros(livros) {
-    const ctx = document.getElementById('chartGeneros').getContext('2d');
-    if (chartGenerosInstance) chartGenerosInstance.destroy();
-
-    // Agrupa por gênero (top 7)
-    const contagem = {};
-    livros.forEach(l => {
-      const g = l.genero || 'Sem gênero';
-      contagem[g] = (contagem[g] || 0) + 1;
-    });
-
-    const ordenados = Object.entries(contagem)
+  function renderChartGenerosMapa(mapa) {
+    // mapa = { "Romance": 3, "Ficção": 2, ... } — vem pronto do back-end
+    const ordenados = Object.entries(mapa || {})
       .sort((a, b) => b[1] - a[1])
       .slice(0, 7);
+    renderChartGeneros(ordenados);
+  }
+
+  function renderChartGeneros(ordenados) {
+    const ctx = document.getElementById('chartGeneros').getContext('2d');
+    if (chartGenerosInstance) chartGenerosInstance.destroy();
 
     const labels = ordenados.map(([g]) => g);
     const data   = ordenados.map(([, n]) => n);
