@@ -1,6 +1,5 @@
 package Biblioteca.demo.controller;
 
-import Biblioteca.demo.config.AuthHelper;
 import Biblioteca.demo.dto.LocacaoRequestDTO;
 import Biblioteca.demo.model.Locacao;
 import Biblioteca.demo.service.LocacaoService;
@@ -16,14 +15,11 @@ import java.util.List;
 public class LocacaoController {
 
     private final LocacaoService locacaoService;
-    private final AuthHelper authHelper;
 
-    public LocacaoController(LocacaoService locacaoService, AuthHelper authHelper) {
+    public LocacaoController(LocacaoService locacaoService) {
         this.locacaoService = locacaoService;
-        this.authHelper     = authHelper;
     }
 
-    // GET — livre (leitura não é operação destrutiva)
     @GetMapping
     public ResponseEntity<List<Locacao>> listarTodas() {
         return ResponseEntity.ok(locacaoService.listarTodas());
@@ -34,8 +30,6 @@ public class LocacaoController {
         return ResponseEntity.ok(locacaoService.listarAtivas());
     }
 
-    // GET por usuário — ADMIN ou o próprio cliente (sem validação de role aqui,
-    // pois o cliente acessa suas próprias locações)
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Locacao>> listarPorUsuario(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(locacaoService.listarPorUsuario(usuarioId));
@@ -46,27 +40,18 @@ public class LocacaoController {
         return ResponseEntity.ok(locacaoService.buscarPorId(id));
     }
 
-    // POST — ADMIN ou CLIENTE autenticado
     @PostMapping
     public ResponseEntity<Locacao> criar(@Valid @RequestBody LocacaoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(locacaoService.criar(dto));
     }
 
-    // Devolver — somente ADMIN
     @PutMapping("/{id}/devolver")
-    public ResponseEntity<Locacao> devolver(
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
-            @PathVariable Long id) {
-        authHelper.exigirAdmin(userIdHeader);
+    public ResponseEntity<Locacao> devolver(@PathVariable Long id) {
         return ResponseEntity.ok(locacaoService.devolver(id));
     }
 
-    // DELETE — somente ADMIN
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
-            @PathVariable Long id) {
-        authHelper.exigirAdmin(userIdHeader);
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         locacaoService.deletar(id);
         return ResponseEntity.noContent().build();
     }
