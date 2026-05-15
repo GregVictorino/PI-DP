@@ -23,18 +23,14 @@ public class LocacaoController {
         this.authHelper     = authHelper;
     }
 
-    // GET — somente ADMIN (listagem geral)
+    // GET — livre (leitura não é operação destrutiva)
     @GetMapping
-    public ResponseEntity<List<Locacao>> listarTodas(
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
-        authHelper.exigirAdmin(userIdHeader);
+    public ResponseEntity<List<Locacao>> listarTodas() {
         return ResponseEntity.ok(locacaoService.listarTodas());
     }
 
     @GetMapping("/ativas")
-    public ResponseEntity<List<Locacao>> listarAtivas(
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
-        authHelper.exigirAdmin(userIdHeader);
+    public ResponseEntity<List<Locacao>> listarAtivas() {
         return ResponseEntity.ok(locacaoService.listarAtivas());
     }
 

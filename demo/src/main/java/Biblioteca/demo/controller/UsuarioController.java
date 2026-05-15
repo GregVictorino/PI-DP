@@ -26,11 +26,9 @@ public class UsuarioController {
         this.authHelper     = authHelper;
     }
 
-    // GET — somente ADMIN
+    // GET — livre (leitura não é operação destrutiva)
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarTodos(
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
-        authHelper.exigirAdmin(userIdHeader);
+    public ResponseEntity<List<Usuario>> listarTodos() {
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
 
