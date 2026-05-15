@@ -60,6 +60,55 @@
     @media (max-width: 768px) {
       .charts-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── NAV BADGE ── */
+    .nav-item { position: relative; }
+    .nav-badge {
+      margin-left: auto;
+      background: #ef4444;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ── SETTINGS ── */
+    .sidebar-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .settings-icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .settings-icon-btn:hover { background: #334155; color: #fff; }
+
+    /* ── ALERT SUCCESS ── */
+    .alert-success {
+      background: #dcfce7;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    /* ── SOLICITAÇÕES TABLE ── */
+    .sol-card { background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.07); overflow:hidden; }
+    .sol-empty { text-align:center; padding:48px; color:#94a3b8; }
+    .sol-empty svg { opacity:.3; margin-bottom:12px; }
   </style>
 </head>
 <body>
@@ -98,31 +147,44 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">Menu</div>
-      <button class="nav-item active" onclick="showSection('dashboard')">
+      <button class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Visão Geral
       </button>
-      <button class="nav-item" onclick="showSection('livros')">
+      <button class="nav-item" data-section="livros" onclick="showSection('livros')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         Livros
       </button>
-      <button class="nav-item" onclick="showSection('locacoes')">
+      <button class="nav-item" data-section="locacoes" onclick="showSection('locacoes')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Locações
       </button>
-      <button class="nav-item" onclick="showSection('clientes')">
+      <button class="nav-item" data-section="solicitacoes" onclick="showSection('solicitacoes')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Solicitações
+        <span class="nav-badge" id="navBadgePendentes" style="display:none">0</span>
+      </button>
+      <button class="nav-item" data-section="clientes" onclick="showSection('clientes')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Clientes
       </button>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">A</div>
-        <div>
-          <div class="user-name" id="userName">Carregando...</div>
-          <div class="user-role" id="userRole">—</div>
+      <div class="sidebar-footer-top">
+        <div class="user-info" style="flex:1;min-width:0">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div style="min-width:0">
+            <div class="user-name" id="userName">Carregando...</div>
+            <div class="user-role" id="userRole">—</div>
+          </div>
         </div>
+        <button class="settings-icon-btn" onclick="abrirConfiguracoes()" title="Configurações">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
       </div>
       <button class="btn btn-secondary btn-full btn-sm" onclick="logout()">Sair</button>
     </div>
@@ -284,6 +346,29 @@
         </div>
       </section>
 
+      <!-- ====== SEÇÃO: SOLICITAÇÕES ====== -->
+      <section id="sec-solicitacoes" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Solicitações de Locação</h3>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Livro</th>
+                  <th>Solicitado em</th>
+                  <th>Devolução Prevista</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaSolicitacoes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- ====== SEÇÃO: CLIENTES ====== -->
       <section id="sec-clientes" class="section">
         <div class="card">
@@ -438,7 +523,58 @@
   </div>
 </div>
 
-<script src="js/api.js?v=4"></script>
+<!-- ====== MODAL: CONFIGURAÇÕES ====== -->
+<div class="modal-overlay hidden" id="modalConfigOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙ Configurações do Perfil</h3>
+      <button class="modal-close" onclick="fecharConfiguracoes()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="configError"   class="alert alert-error"   style="display:none;"></div>
+      <div id="configSuccess" class="alert-success"       style="display:none;"></div>
+
+      <p style="font-size:13px;font-weight:600;color:#64748b;margin-bottom:12px">Dados do perfil</p>
+      <div class="form-group">
+        <label>Nome *</label>
+        <input type="text" id="configNome" placeholder="Seu nome" />
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="configEmail" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" id="configTelefone" placeholder="(11) 99999-9999" />
+      </div>
+
+      <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0" />
+      <p style="font-size:13px;font-weight:600;color:#64748b;margin-bottom:12px">Alterar senha</p>
+      <div class="form-group">
+        <label>Nova senha</label>
+        <input type="password" id="configSenha" placeholder="Deixe em branco para não alterar" />
+      </div>
+      <div class="form-group">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="configSenhaConfirm" placeholder="Repita a nova senha" />
+      </div>
+
+      <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0" />
+      <p style="font-size:13px;font-weight:600;color:#64748b;margin-bottom:8px">Sobre o sistema</p>
+      <p style="font-size:13px;color:#94a3b8;line-height:1.6">
+        📚 Biblioteca — Sistema de Locação<br>
+        Versão 1.0 · Spring Boot 3.3.5 · Java 21<br>
+        Banco: H2 (desenvolvimento)
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharConfiguracoes()">Cancelar</button>
+      <button class="btn btn-primary"   onclick="salvarConfiguracoes()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js?v=5"></script>
 <script>
   // Verificação de autenticação
   const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario') || 'null');
@@ -452,19 +588,27 @@
   // ========================
   // NAVEGAÇÃO
   // ========================
-  const sections = { dashboard: 'Visão Geral', livros: 'Livros', locacoes: 'Locações', clientes: 'Clientes' };
+  const sections = {
+    dashboard:    'Visão Geral',
+    livros:       'Livros',
+    locacoes:     'Locações',
+    solicitacoes: 'Solicitações',
+    clientes:     'Clientes'
+  };
 
   function showSection(name) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.nav-item[data-section]').forEach(n => n.classList.remove('active'));
     document.getElementById('sec-' + name).classList.add('active');
-    document.querySelectorAll('.nav-item')[Object.keys(sections).indexOf(name)].classList.add('active');
-    document.getElementById('pageTitle').textContent = sections[name];
+    const btn = document.querySelector(`.nav-item[data-section="${name}"]`);
+    if (btn) btn.classList.add('active');
+    document.getElementById('pageTitle').textContent = sections[name] || name;
 
-    if (name === 'dashboard') carregarDashboard();
-    if (name === 'livros') carregarLivros();
-    if (name === 'locacoes') carregarLocacoes();
-    if (name === 'clientes') carregarClientes();
+    if (name === 'dashboard')    carregarDashboard();
+    if (name === 'livros')       carregarLivros();
+    if (name === 'locacoes')     carregarLocacoes();
+    if (name === 'solicitacoes') carregarSolicitacoes();
+    if (name === 'clientes')     carregarClientes();
   }
 
   function logout() {
@@ -487,7 +631,12 @@
       document.getElementById('statDisponiveis').textContent    = r.totalDisponiveis;
       document.getElementById('statLocacoesAtivas').textContent = r.locacoesAtivas;
       document.getElementById('statClientes').textContent       = r.totalClientes;
-      document.getElementById('statPendentes').textContent      = r.locacoesPendentes ?? 0;
+      const pendentes = r.locacoesPendentes ?? 0;
+      document.getElementById('statPendentes').textContent = pendentes;
+      // Badge no menu lateral
+      const badge = document.getElementById('navBadgePendentes');
+      badge.textContent = pendentes;
+      badge.style.display = pendentes > 0 ? 'inline-block' : 'none';
 
       // ── GRÁFICO 1: Donut de status ──
       renderChartStatus(r.locacoesAtivas, r.locacoesDevolvidas, r.locacoesAtrasadas);
@@ -830,12 +979,48 @@
     }
   }
 
+  // ========================
+  // SOLICITAÇÕES
+  // ========================
+  async function carregarSolicitacoes() {
+    showLoading('tabelaSolicitacoes', 5);
+    try {
+      const locacoes = await api.getLocacoes();
+      const pendentes = locacoes.filter(l => l.status === 'PENDENTE');
+      const tbody = document.getElementById('tabelaSolicitacoes');
+      tbody.innerHTML = pendentes.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:48px">
+             ✅ Nenhuma solicitação pendente no momento
+           </td></tr>`
+        : pendentes.map(l => `
+          <tr>
+            <td>
+              <strong>${l.usuario?.nome || '—'}</strong><br>
+              <small style="color:#64748b">${l.usuario?.email || ''}</small>
+            </td>
+            <td>
+              ${l.livro?.titulo || '—'}<br>
+              <small style="color:#64748b">${l.livro?.autor || ''}</small>
+            </td>
+            <td>${formatDate(l.dataLocacao)}</td>
+            <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+            <td class="actions">
+              <button class="btn btn-success btn-sm" onclick="aprovarLocacao(${l.id})">✔ Aprovar</button>
+              <button class="btn btn-danger btn-sm"  onclick="rejeitarLocacao(${l.id})">✘ Rejeitar</button>
+            </td>
+          </tr>`).join('');
+    } catch (e) {
+      document.getElementById('tabelaSolicitacoes').innerHTML =
+        `<tr><td colspan="5" style="text-align:center;color:#ef4444;padding:24px">Erro: ${e.message}</td></tr>`;
+    }
+  }
+
   async function aprovarLocacao(id) {
     const ok = await showConfirm('Aprovar esta solicitação? O livro será reservado para o cliente.', 'Aprovar solicitação');
     if (!ok) return;
     try {
       await api.aprovarLocacao(id);
-      carregarLocacoes();
+      carregarSolicitacoes();
       carregarDashboard();
       showToast('Solicitação aprovada! Locação ativa.');
     } catch (e) {
@@ -848,7 +1033,7 @@
     if (!ok) return;
     try {
       await api.rejeitarLocacao(id);
-      carregarLocacoes();
+      carregarSolicitacoes();
       carregarDashboard();
       showToast('Solicitação rejeitada.', 'error');
     } catch (e) {
@@ -969,6 +1154,70 @@
       showToast('Cliente excluído.', 'error');
     } catch (e) {
       showToast(e.message, 'error');
+    }
+  }
+
+  // ========================
+  // CONFIGURAÇÕES
+  // ========================
+  function abrirConfiguracoes() {
+    document.getElementById('configNome').value      = usuarioLogado.nome  || '';
+    document.getElementById('configEmail').value     = usuarioLogado.email || '';
+    document.getElementById('configTelefone').value  = usuarioLogado.telefone || '';
+    document.getElementById('configSenha').value        = '';
+    document.getElementById('configSenhaConfirm').value = '';
+    document.getElementById('configError').style.display   = 'none';
+    document.getElementById('configSuccess').style.display = 'none';
+    document.getElementById('modalConfigOverlay').classList.remove('hidden');
+  }
+
+  function fecharConfiguracoes() {
+    document.getElementById('modalConfigOverlay').classList.add('hidden');
+  }
+
+  async function salvarConfiguracoes() {
+    const errorEl   = document.getElementById('configError');
+    const successEl = document.getElementById('configSuccess');
+    errorEl.style.display   = 'none';
+    successEl.style.display = 'none';
+
+    const nome     = document.getElementById('configNome').value.trim();
+    const email    = document.getElementById('configEmail').value.trim();
+    const telefone = document.getElementById('configTelefone').value.trim();
+    const senha    = document.getElementById('configSenha').value;
+    const senhaC   = document.getElementById('configSenhaConfirm').value;
+
+    if (!nome || !email) {
+      errorEl.textContent = 'Nome e email são obrigatórios.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (senha && senha !== senhaC) {
+      errorEl.textContent = 'As senhas não coincidem.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (senha && senha.length < 6) {
+      errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+      errorEl.style.display = 'block'; return;
+    }
+
+    const payload = { nome, email, telefone, cpf: usuarioLogado.cpf || '', role: usuarioLogado.role };
+    if (senha) payload.senha = senha;
+
+    try {
+      await api.updateUsuario(usuarioLogado.id, payload);
+      // Atualiza sessão e sidebar
+      Object.assign(usuarioLogado, { nome, email, telefone });
+      sessionStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+      document.getElementById('userName').textContent  = nome;
+      document.getElementById('userAvatar').textContent = nome.charAt(0).toUpperCase();
+
+      successEl.textContent = '✔ Perfil atualizado com sucesso!';
+      successEl.style.display = 'block';
+      document.getElementById('configSenha').value        = '';
+      document.getElementById('configSenhaConfirm').value = '';
+    } catch (e) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
     }
   }
 
