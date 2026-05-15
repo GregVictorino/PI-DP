@@ -61,15 +61,42 @@ public class LocacaoService {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-        livro.setQuantidadeDisponivel(livro.getQuantidadeDisponivel() - 1);
-        livroRepository.save(livro);
-
+        // Não decrementa aqui — aguarda aprovação do admin
         Locacao locacao = new Locacao();
         locacao.setLivro(livro);
         locacao.setUsuario(usuario);
         locacao.setDataLocacao(LocalDate.now());
         locacao.setDataDevolucaoPrevista(dto.getDataDevolucaoPrevista());
+        locacao.setStatus(StatusLocacao.PENDENTE);
+        return locacaoRepository.save(locacao);
+    }
+
+    @Transactional
+    public Locacao aprovar(Long id) {
+        Locacao locacao = buscarPorId(id);
+        if (locacao.getStatus() != StatusLocacao.PENDENTE) {
+            throw new RuntimeException("Apenas solicitações pendentes podem ser aprovadas");
+        }
+
+        Livro livro = locacao.getLivro();
+        if (livro.getQuantidadeDisponivel() <= 0) {
+            throw new RuntimeException("Livro indisponível no momento — não é possível aprovar");
+        }
+
+        livro.setQuantidadeDisponivel(livro.getQuantidadeDisponivel() - 1);
+        livroRepository.save(livro);
+
         locacao.setStatus(StatusLocacao.ATIVA);
+        return locacaoRepository.save(locacao);
+    }
+
+    @Transactional
+    public Locacao rejeitar(Long id) {
+        Locacao locacao = buscarPorId(id);
+        if (locacao.getStatus() != StatusLocacao.PENDENTE) {
+            throw new RuntimeException("Apenas solicitações pendentes podem ser rejeitadas");
+        }
+        locacao.setStatus(StatusLocacao.REJEITADA);
         return locacaoRepository.save(locacao);
     }
 
@@ -91,7 +118,8 @@ public class LocacaoService {
 
     public void deletar(Long id) {
         Locacao locacao = buscarPorId(id);
-        if (locacao.getStatus() == StatusLocacao.ATIVA) {
+        // Só devolve ao estoque se já estava ATIVA (PENDENTE e REJEITADA nunca decrementaram)
+        if (locacao.getStatus() == StatusLocacao.ATIVA || locacao.getStatus() == StatusLocacao.ATRASADA) {
             Livro livro = locacao.getLivro();
             livro.setQuantidadeDisponivel(livro.getQuantidadeDisponivel() + 1);
             livroRepository.save(livro);

@@ -58,6 +58,7 @@ public class DashboardController {
         long totalDisponiveis = livros.stream()
                 .mapToLong(l -> l.getQuantidadeDisponivel() != null ? l.getQuantidadeDisponivel() : 0)
                 .sum();
+        long locacoesPendentes  = locacoes.stream().filter(l -> l.getStatus() == StatusLocacao.PENDENTE).count();
         long locacoesAtivas     = locacoes.stream().filter(l -> l.getStatus() == StatusLocacao.ATIVA).count();
         long locacoesAtrasadas  = locacoes.stream().filter(l -> l.getStatus() == StatusLocacao.ATRASADA).count();
         long locacoesDevolvidas = locacoes.stream().filter(l -> l.getStatus() == StatusLocacao.DEVOLVIDA).count();
@@ -83,6 +84,7 @@ public class DashboardController {
         Map<String, Object> resposta = new HashMap<>();
         resposta.put("totalLivros",       totalLivros);
         resposta.put("totalDisponiveis",  totalDisponiveis);
+        resposta.put("locacoesPendentes", locacoesPendentes);
         resposta.put("locacoesAtivas",    locacoesAtivas);
         resposta.put("locacoesAtrasadas", locacoesAtrasadas);
         resposta.put("locacoesDevolvidas",locacoesDevolvidas);

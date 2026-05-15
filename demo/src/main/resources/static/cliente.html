@@ -185,7 +185,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="fecharModalLocar()">Cancelar</button>
-      <button class="btn btn-primary" onclick="confirmarLocacao()">Confirmar</button>
+      <button class="btn btn-primary" onclick="confirmarLocacao()">Enviar Solicitação</button>
     </div>
   </div>
 </div>
@@ -347,7 +347,7 @@
               ${l.quantidadeDisponivel > 0 ? l.quantidadeDisponivel + ' disp.' : 'Indisponível'}
             </span>
             ${l.quantidadeDisponivel > 0
-              ? `<button class="btn btn-primary btn-sm" onclick="abrirModalLocar(${l.id}, '${l.titulo.replace(/'/g, "\\'")}')">Locar</button>`
+              ? `<button class="btn btn-primary btn-sm" onclick="abrirModalLocar(${l.id}, '${l.titulo.replace(/'/g, "\\'")}')">Solicitar</button>`
               : `<button class="btn btn-secondary btn-sm" disabled>Indisponível</button>`
             }
           </div>
@@ -453,8 +453,8 @@
   }
 
   function badgeStatus(s) {
-    const map   = { ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red' };
-    const label = { ATIVA: 'Ativa', DEVOLVIDA: 'Devolvida', ATRASADA: 'Atrasada' };
+    const map   = { PENDENTE: 'badge-yellow', ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red', REJEITADA: 'badge-gray' };
+    const label = { PENDENTE: 'Aguardando aprovação', ATIVA: 'Ativa', DEVOLVIDA: 'Devolvida', ATRASADA: 'Atrasada', REJEITADA: 'Rejeitada' };
     return `<span class="badge ${map[s] || 'badge-gray'}">${label[s] || s}</span>`;
   }
 

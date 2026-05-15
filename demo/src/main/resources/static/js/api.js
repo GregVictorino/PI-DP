@@ -55,6 +55,8 @@ const api = {
   getLocacoesAtivas:    ()   => apiRequest('GET',    '/locacoes/ativas'),
   getLocacoesPorUsuario:(id) => apiRequest('GET',    `/locacoes/usuario/${id}`),
   createLocacao:       (data)=> apiRequest('POST',   '/locacoes', data),
+  aprovarLocacao:       (id) => apiRequest('PUT',    `/locacoes/${id}/aprovar`),
+  rejeitarLocacao:      (id) => apiRequest('PUT',    `/locacoes/${id}/rejeitar`),
   devolverLocacao:      (id) => apiRequest('PUT',    `/locacoes/${id}/devolver`),
   deleteLocacao:        (id) => apiRequest('DELETE', `/locacoes/${id}`),
 

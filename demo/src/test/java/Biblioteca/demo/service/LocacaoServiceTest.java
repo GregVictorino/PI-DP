@@ -66,26 +66,58 @@ class LocacaoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve criar locação e decrementar quantidade disponível do livro")
-    void deveCriarLocacaoEDecrementarEstoque() {
+    @DisplayName("Deve criar solicitação com status PENDENTE sem decrementar o estoque")
+    void deveCriarSolicitacaoComStatusPendente() {
         LocacaoRequestDTO dto = new LocacaoRequestDTO();
         dto.setLivroId(1L);
         dto.setUsuarioId(1L);
         dto.setDataDevolucaoPrevista(LocalDate.now().plusDays(7));
 
+        locacao.setStatus(StatusLocacao.PENDENTE);
+
         when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
-        when(livroRepository.save(any(Livro.class))).thenReturn(livro);
         when(locacaoRepository.save(any(Locacao.class))).thenReturn(locacao);
 
         Locacao resultado = locacaoService.criar(dto);
 
         assertNotNull(resultado);
+        assertEquals(StatusLocacao.PENDENTE, resultado.getStatus());
+        // Estoque NÃO deve ser decrementado na solicitação — só na aprovação
+        assertEquals(3, livro.getQuantidadeDisponivel());
+        verify(livroRepository, never()).save(livro);
+        verify(locacaoRepository, times(1)).save(any(Locacao.class));
+    }
+
+    @Test
+    @DisplayName("Deve aprovar solicitação, mudar status para ATIVA e decrementar estoque")
+    void deveAprovarSolicitacaoEDecrementarEstoque() {
+        locacao.setStatus(StatusLocacao.PENDENTE);
+
+        when(locacaoRepository.findById(1L)).thenReturn(Optional.of(locacao));
+        when(livroRepository.save(any(Livro.class))).thenReturn(livro);
+        when(locacaoRepository.save(any(Locacao.class))).thenReturn(locacao);
+
+        Locacao resultado = locacaoService.aprovar(1L);
+
         assertEquals(StatusLocacao.ATIVA, resultado.getStatus());
-        // Verifica que o estoque foi decrementado
         assertEquals(2, livro.getQuantidadeDisponivel());
         verify(livroRepository, times(1)).save(livro);
-        verify(locacaoRepository, times(1)).save(any(Locacao.class));
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar solicitação e manter o estoque intacto")
+    void deveRejeitarSolicitacao() {
+        locacao.setStatus(StatusLocacao.PENDENTE);
+
+        when(locacaoRepository.findById(1L)).thenReturn(Optional.of(locacao));
+        when(locacaoRepository.save(any(Locacao.class))).thenReturn(locacao);
+
+        Locacao resultado = locacaoService.rejeitar(1L);
+
+        assertEquals(StatusLocacao.REJEITADA, resultado.getStatus());
+        assertEquals(3, livro.getQuantidadeDisponivel()); // estoque não muda
+        verify(livroRepository, never()).save(any());
     }
 
     @Test

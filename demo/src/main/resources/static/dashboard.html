@@ -175,6 +175,15 @@
               <div class="stat-label">Clientes</div>
             </div>
           </div>
+          <div class="stat-card" style="cursor:pointer" onclick="showSection('locacoes')" title="Ver solicitações pendentes">
+            <div class="stat-icon yellow">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="stat-value" id="statPendentes">—</div>
+              <div class="stat-label">Pendentes</div>
+            </div>
+          </div>
         </div>
 
         <!-- ── GRÁFICOS ── -->
@@ -478,6 +487,7 @@
       document.getElementById('statDisponiveis').textContent    = r.totalDisponiveis;
       document.getElementById('statLocacoesAtivas').textContent = r.locacoesAtivas;
       document.getElementById('statClientes').textContent       = r.totalClientes;
+      document.getElementById('statPendentes').textContent      = r.locacoesPendentes ?? 0;
 
       // ── GRÁFICO 1: Donut de status ──
       renderChartStatus(r.locacoesAtivas, r.locacoesDevolvidas, r.locacoesAtrasadas);
@@ -760,6 +770,9 @@
             <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
             <td>${badgeStatus(l.status)}</td>
             <td class="actions">
+              ${l.status === 'PENDENTE' ? `
+                <button class="btn btn-success btn-sm" onclick="aprovarLocacao(${l.id})">✔ Aprovar</button>
+                <button class="btn btn-danger btn-sm"  onclick="rejeitarLocacao(${l.id})">✘ Rejeitar</button>` : ''}
               ${l.status === 'ATIVA' ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
               <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
             </td>
@@ -814,6 +827,32 @@
     } catch (e) {
       errorEl.textContent = e.message;
       errorEl.style.display = 'block';
+    }
+  }
+
+  async function aprovarLocacao(id) {
+    const ok = await showConfirm('Aprovar esta solicitação? O livro será reservado para o cliente.', 'Aprovar solicitação');
+    if (!ok) return;
+    try {
+      await api.aprovarLocacao(id);
+      carregarLocacoes();
+      carregarDashboard();
+      showToast('Solicitação aprovada! Locação ativa.');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function rejeitarLocacao(id) {
+    const ok = await showConfirm('Rejeitar esta solicitação de locação?', 'Rejeitar solicitação');
+    if (!ok) return;
+    try {
+      await api.rejeitarLocacao(id);
+      carregarLocacoes();
+      carregarDashboard();
+      showToast('Solicitação rejeitada.', 'error');
+    } catch (e) {
+      showToast(e.message, 'error');
     }
   }
 
@@ -943,8 +982,8 @@
   }
 
   function badgeStatus(status) {
-    const map = { ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red' };
-    const label = { ATIVA: 'Ativa', DEVOLVIDA: 'Devolvida', ATRASADA: 'Atrasada' };
+    const map   = { PENDENTE: 'badge-yellow', ATIVA: 'badge-orange', DEVOLVIDA: 'badge-green', ATRASADA: 'badge-red', REJEITADA: 'badge-gray' };
+    const label = { PENDENTE: 'Pendente',     ATIVA: 'Ativa',        DEVOLVIDA: 'Devolvida',   ATRASADA: 'Atrasada',  REJEITADA: 'Rejeitada' };
     return `<span class="badge ${map[status] || 'badge-gray'}">${label[status] || status}</span>`;
   }
 

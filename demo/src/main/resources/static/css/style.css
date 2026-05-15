@@ -351,6 +351,7 @@ body {
 .stat-icon.green  { background: #dcfce7; color: #16a34a; }
 .stat-icon.orange { background: #ffedd5; color: #ea580c; }
 .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+.stat-icon.yellow { background: #fef9c3; color: #a16207; }
 
 .stat-value {
   font-size: 28px;
@@ -447,6 +448,7 @@ tbody tr:hover {
 .badge-red    { background: #fef2f2; color: #dc2626; }
 .badge-gray   { background: #f1f5f9; color: #64748b; }
 .badge-orange { background: #ffedd5; color: #ea580c; }
+.badge-yellow { background: #fef9c3; color: #a16207; }
 
 
 .modal-overlay {

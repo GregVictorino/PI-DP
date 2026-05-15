@@ -45,6 +45,16 @@ public class LocacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(locacaoService.criar(dto));
     }
 
+    @PutMapping("/{id}/aprovar")
+    public ResponseEntity<Locacao> aprovar(@PathVariable Long id) {
+        return ResponseEntity.ok(locacaoService.aprovar(id));
+    }
+
+    @PutMapping("/{id}/rejeitar")
+    public ResponseEntity<Locacao> rejeitar(@PathVariable Long id) {
+        return ResponseEntity.ok(locacaoService.rejeitar(id));
+    }
+
     @PutMapping("/{id}/devolver")
     public ResponseEntity<Locacao> devolver(@PathVariable Long id) {
         return ResponseEntity.ok(locacaoService.devolver(id));
