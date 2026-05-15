@@ -336,7 +336,15 @@
       </div>
       <div class="form-group">
         <label>URL da Capa (imagem)</label>
-        <input type="text" id="livroImageUrl" placeholder="https://..." />
+        <input type="text" id="livroImageUrl" placeholder="https://..." oninput="previewCapa(this.value)" />
+        <div id="capaPreview" style="margin-top:8px;display:none;text-align:center;">
+          <img id="capaPreviewImg"
+               style="max-height:120px;max-width:100%;border-radius:6px;border:1px solid #e2e8f0;object-fit:cover;"
+               alt="Preview da capa" />
+          <div id="capaPreviewErro" style="display:none;color:#ef4444;font-size:12px;margin-top:4px;">
+            ⚠️ URL inválida ou imagem bloqueada pelo site de origem.
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Descrição</label>
@@ -421,7 +429,7 @@
   </div>
 </div>
 
-<script src="js/api.js"></script>
+<script src="js/api.js?v=4"></script>
 <script>
   // Verificação de autenticação
   const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario') || 'null');
@@ -645,6 +653,19 @@
     renderLivros(todosLivros.filter(l => l.titulo.toLowerCase().includes(q)));
   }
 
+  function previewCapa(url) {
+    const preview = document.getElementById('capaPreview');
+    const img     = document.getElementById('capaPreviewImg');
+    const erro    = document.getElementById('capaPreviewErro');
+    if (!url || !url.trim()) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+    erro.style.display    = 'none';
+    img.style.display     = 'block';
+    img.src = url.trim();
+    img.onerror = () => { img.style.display = 'none'; erro.style.display = 'block'; };
+    img.onload  = () => { img.style.display = 'block'; erro.style.display = 'none'; };
+  }
+
   function abrirModalLivro() {
     document.getElementById('livroId').value = '';
     document.getElementById('livroTitulo').value = '';
@@ -657,6 +678,7 @@
     document.getElementById('livroQuantidade').value = '';
     document.getElementById('modalLivroTitulo').textContent = 'Novo Livro';
     document.getElementById('livroError').style.display = 'none';
+    previewCapa('');
     document.getElementById('modalLivroOverlay').classList.remove('hidden');
   }
 
@@ -678,6 +700,7 @@
     document.getElementById('livroQuantidade').value = l.quantidadeTotal || '';
     document.getElementById('modalLivroTitulo').textContent = 'Editar Livro';
     document.getElementById('livroError').style.display = 'none';
+    previewCapa(l.imageUrl || '');
     document.getElementById('modalLivroOverlay').classList.remove('hidden');
   }
 
