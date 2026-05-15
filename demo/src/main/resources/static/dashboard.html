@@ -603,8 +603,13 @@
 
   async function carregarLivros() {
     showLoading('tabelaLivros', 6);
-    todosLivros = await api.getLivros();
-    renderLivros(todosLivros);
+    try {
+      todosLivros = await api.getLivros();
+      renderLivros(todosLivros);
+    } catch (e) {
+      document.getElementById('tabelaLivros').innerHTML =
+        `<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar livros: ${e.message}</td></tr>`;
+    }
   }
 
   function renderLivros(livros) {
@@ -708,23 +713,28 @@
   // ========================
   async function carregarLocacoes() {
     showLoading('tabelaLocacoes', 7);
-    const locacoes = await api.getLocacoes();
-    const tbody = document.getElementById('tabelaLocacoes');
-    tbody.innerHTML = locacoes.length === 0
-      ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação</td></tr>'
-      : locacoes.map(l => `
-        <tr>
-          <td>${l.usuario?.nome || '—'}</td>
-          <td>${l.livro?.titulo || '—'}</td>
-          <td>${formatDate(l.dataLocacao)}</td>
-          <td>${formatDate(l.dataDevolucaoPrevista)}</td>
-          <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
-          <td>${badgeStatus(l.status)}</td>
-          <td class="actions">
-            ${l.status === 'ATIVA' ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
-            <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
-          </td>
-        </tr>`).join('');
+    try {
+      const locacoes = await api.getLocacoes();
+      const tbody = document.getElementById('tabelaLocacoes');
+      tbody.innerHTML = locacoes.length === 0
+        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação</td></tr>'
+        : locacoes.map(l => `
+          <tr>
+            <td>${l.usuario?.nome || '—'}</td>
+            <td>${l.livro?.titulo || '—'}</td>
+            <td>${formatDate(l.dataLocacao)}</td>
+            <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+            <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
+            <td>${badgeStatus(l.status)}</td>
+            <td class="actions">
+              ${l.status === 'ATIVA' ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
+            </td>
+          </tr>`).join('');
+    } catch (e) {
+      document.getElementById('tabelaLocacoes').innerHTML =
+        `<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar locações: ${e.message}</td></tr>`;
+    }
   }
 
   async function abrirModalLocacao() {
@@ -803,23 +813,28 @@
   // ========================
   async function carregarClientes() {
     showLoading('tabelaClientes', 6);
-    const usuarios = await api.getUsuarios();
-    const clientes = usuarios.filter(u => u.role === 'CLIENTE');
-    const tbody = document.getElementById('tabelaClientes');
-    tbody.innerHTML = clientes.length === 0
-      ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Nenhum cliente cadastrado</td></tr>'
-      : clientes.map(u => `
-        <tr>
-          <td><strong>${u.nome}</strong></td>
-          <td>${u.email}</td>
-          <td>${u.telefone || '—'}</td>
-          <td>${u.cpf || '—'}</td>
-          <td><span class="badge badge-blue">Cliente</span></td>
-          <td class="actions">
-            <button class="btn btn-secondary btn-sm" onclick="editarCliente(${u.id}, '${u.nome}', '${u.email}', '${u.telefone || ''}', '${u.cpf || ''}')">Editar</button>
-            <button class="btn btn-danger btn-sm" onclick="deletarCliente(${u.id})">Excluir</button>
-          </td>
-        </tr>`).join('');
+    try {
+      const usuarios = await api.getUsuarios();
+      const clientes = usuarios.filter(u => u.role === 'CLIENTE');
+      const tbody = document.getElementById('tabelaClientes');
+      tbody.innerHTML = clientes.length === 0
+        ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Nenhum cliente cadastrado</td></tr>'
+        : clientes.map(u => `
+          <tr>
+            <td><strong>${u.nome}</strong></td>
+            <td>${u.email}</td>
+            <td>${u.telefone || '—'}</td>
+            <td>${u.cpf || '—'}</td>
+            <td><span class="badge badge-blue">Cliente</span></td>
+            <td class="actions">
+              <button class="btn btn-secondary btn-sm" onclick="editarCliente(${u.id}, '${u.nome}', '${u.email}', '${u.telefone || ''}', '${u.cpf || ''}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="deletarCliente(${u.id})">Excluir</button>
+            </td>
+          </tr>`).join('');
+    } catch (e) {
+      document.getElementById('tabelaClientes').innerHTML =
+        `<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar clientes: ${e.message}</td></tr>`;
+    }
   }
 
   function abrirModalCliente() {
