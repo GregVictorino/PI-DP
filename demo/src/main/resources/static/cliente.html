@@ -402,23 +402,43 @@
   async function carregarMinhasLocacoes() {
     document.getElementById('tabelaMinhas').innerHTML =
       '<tr><td colspan="5" class="loading-cell"><div class="spinner"></div></td></tr>';
-    const locacoes = await api.getLocacoesPorUsuario(usuario.id);
+    try {
+      const locacoes = await api.getLocacoesPorUsuario(usuario.id);
 
-    document.getElementById('statAtivas').textContent    = locacoes.filter(l => l.status === 'ATIVA').length;
-    document.getElementById('statDevolvidas').textContent = locacoes.filter(l => l.status === 'DEVOLVIDA').length;
-    document.getElementById('statAtrasadas').textContent  = locacoes.filter(l => l.status === 'ATRASADA').length;
+      document.getElementById('statAtivas').textContent     = locacoes.filter(l => l.status === 'ATIVA').length;
+      document.getElementById('statDevolvidas').textContent = locacoes.filter(l => l.status === 'DEVOLVIDA').length;
+      document.getElementById('statAtrasadas').textContent  = locacoes.filter(l => l.status === 'ATRASADA').length;
 
-    const tbody = document.getElementById('tabelaMinhas');
-    tbody.innerHTML = locacoes.length === 0
-      ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">Você ainda não fez nenhuma locação</td></tr>'
-      : locacoes.map(l => `
-        <tr>
-          <td><strong>${l.livro?.titulo || '—'}</strong><br><span style="font-size:12px;color:#64748b">${l.livro?.autor || ''}</span></td>
-          <td>${formatDate(l.dataLocacao)}</td>
-          <td>${formatDate(l.dataDevolucaoPrevista)}</td>
-          <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
-          <td>${badgeStatus(l.status)}</td>
-        </tr>`).join('');
+      const tbody = document.getElementById('tabelaMinhas');
+      tbody.innerHTML = locacoes.length === 0
+        ? '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:32px">Você ainda não fez nenhuma locação</td></tr>'
+        : locacoes.map(l => {
+            const capa = l.livro?.imageUrl
+              ? `<img src="${l.livro.imageUrl}" alt="${l.livro?.titulo || ''}"
+                   style="width:36px;height:50px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:10px;"
+                   onerror="this.style.display='none'">`
+              : `<span style="font-size:20px;margin-right:8px;vertical-align:middle;">📖</span>`;
+            return `
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;">
+                    ${capa}
+                    <div>
+                      <strong>${l.livro?.titulo || '—'}</strong><br>
+                      <span style="font-size:12px;color:#64748b">${l.livro?.autor || ''}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>${formatDate(l.dataLocacao)}</td>
+                <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+                <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
+                <td>${badgeStatus(l.status)}</td>
+              </tr>`;
+          }).join('');
+    } catch (e) {
+      document.getElementById('tabelaMinhas').innerHTML =
+        `<tr><td colspan="5" style="text-align:center;color:#ef4444;padding:32px">Erro ao carregar locações: ${e.message}</td></tr>`;
+    }
   }
 
   // ========================

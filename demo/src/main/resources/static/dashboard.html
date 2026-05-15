@@ -234,6 +234,7 @@
             <table>
               <thead>
                 <tr>
+                  <th style="width:60px">Capa</th>
                   <th>Título</th>
                   <th>Autor</th>
                   <th>Gênero</th>
@@ -608,16 +609,25 @@
       renderLivros(todosLivros);
     } catch (e) {
       document.getElementById('tabelaLivros').innerHTML =
-        `<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar livros: ${e.message}</td></tr>`;
+        `<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar livros: ${e.message}</td></tr>`;
     }
   }
 
   function renderLivros(livros) {
     const tbody = document.getElementById('tabelaLivros');
     tbody.innerHTML = livros.length === 0
-      ? '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Nenhum livro cadastrado</td></tr>'
+      ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhum livro cadastrado</td></tr>'
       : livros.map(l => `
         <tr>
+          <td>
+            ${l.imageUrl
+              ? `<img src="${l.imageUrl}" alt="${l.titulo}"
+                   style="width:40px;height:56px;object-fit:cover;border-radius:4px;display:block;"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+              : ''}
+            <div style="${l.imageUrl ? 'display:none;' : ''}width:40px;height:56px;background:#f1f5f9;border-radius:4px;
+                        align-items:center;justify-content:center;color:#cbd5e1;font-size:18px;">📖</div>
+          </td>
           <td><strong>${l.titulo}</strong></td>
           <td>${l.autor}</td>
           <td>${l.genero || '—'}</td>
