@@ -20,7 +20,10 @@ public class Livro {
 
     private String isbn;
     private String genero;
+    @Column(length = 2048)
     private String imageUrl;
+
+    @Column(length = 1000)
     private String descricao;
     private Integer anoPublicacao;
 
