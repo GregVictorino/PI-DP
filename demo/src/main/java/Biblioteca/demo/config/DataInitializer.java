@@ -62,8 +62,7 @@ public class DataInitializer implements CommandLineRunner {
                 "a famosa \"Capitu dos olhos de ressaca\", e a dúvida que marcou sua vida."
             );
             domCasmurro.setImageUrl(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/" +
-                "Primeira_edi%C3%A7%C3%A3o_de_Dom_Casmurro.jpg/330px-Primeira_edi%C3%A7%C3%A3o_de_Dom_Casmurro.jpg"
+                "https://covers.openlibrary.org/b/id/647501-L.jpg"
             );
             domCasmurro.setQuantidadeTotal(5);
             domCasmurro.setQuantidadeDisponivel(5);
@@ -80,8 +79,7 @@ public class DataInitializer implements CommandLineRunner {
                 "irreverente e filosófica, inaugurando o Realismo no Brasil."
             );
             memorias.setImageUrl(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/" +
-                "Mem%C3%B3rias_P%C3%B3stumas_de_Br%C3%A1s_Cubas_capa.jpg/250px-Mem%C3%B3rias_P%C3%B3stumas_de_Br%C3%A1s_Cubas_capa.jpg"
+                "https://covers.openlibrary.org/b/id/7959338-L.jpg"
             );
             memorias.setQuantidadeTotal(3);
             memorias.setQuantidadeDisponivel(3);
@@ -98,8 +96,7 @@ public class DataInitializer implements CommandLineRunner {
                 "guerreiro português Martim Soares Moreno, marco do Romantismo brasileiro."
             );
             iracema.setImageUrl(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/" +
-                "Iracema_%281865%29_crop.jpg/220px-Iracema_%281865%29_crop.jpg"
+                "https://covers.openlibrary.org/b/id/2664651-L.jpg"
             );
             iracema.setQuantidadeTotal(4);
             iracema.setQuantidadeDisponivel(4);
@@ -116,8 +113,7 @@ public class DataInitializer implements CommandLineRunner {
                 "em uma habitação popular do Rio de Janeiro do século XIX."
             );
             oCortiço.setImageUrl(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/" +
-                "O_Corti%C3%A7o_-_Aluisio_Azevedo.jpg/220px-O_Corti%C3%A7o_-_Aluisio_Azevedo.jpg"
+                "https://covers.openlibrary.org/b/id/8176059-L.jpg"
             );
             oCortiço.setQuantidadeTotal(3);
             oCortiço.setQuantidadeDisponivel(3);
