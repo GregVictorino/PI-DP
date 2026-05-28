@@ -328,7 +328,10 @@
         <div class="card">
           <div class="card-header">
             <h3>Locações</h3>
-            <button class="btn btn-primary btn-sm" onclick="abrirModalLocacao()">+ Nova Locação</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" onclick="verificarAtrasos()" title="Detecta locações vencidas e marca como Atrasada">⏰ Verificar Atrasos</button>
+              <button class="btn btn-primary btn-sm" onclick="abrirModalLocacao()">+ Nova Locação</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table>
@@ -1044,6 +1047,20 @@
       await api.rejeitarLocacao(id);
       refreshAposDecisao();
       showToast('Solicitação rejeitada.', 'error');
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  async function verificarAtrasos() {
+    try {
+      const res = await api.verificarAtrasos();
+      if (res.atualizadas > 0) {
+        showToast(`${res.atualizadas} locação(ões) marcada(s) como ATRASADA!`, 'error');
+      } else {
+        showToast('Nenhuma locação em atraso encontrada.');
+      }
+      carregarLocacoes();
     } catch (e) {
       showToast(e.message, 'error');
     }

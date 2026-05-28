@@ -59,6 +59,7 @@ const api = {
   rejeitarLocacao:      (id) => apiRequest('PUT',    `/locacoes/${id}/rejeitar`),
   devolverLocacao:      (id) => apiRequest('PUT',    `/locacoes/${id}/devolver`),
   deleteLocacao:        (id) => apiRequest('DELETE', `/locacoes/${id}`),
+  verificarAtrasos:     ()  => apiRequest('POST',   '/locacoes/verificar-atrasos'),
 
   // ── Dashboard ────────────────────────────────────────────
   getDashboardResumo: () => apiRequest('GET', '/dashboard/resumo'),

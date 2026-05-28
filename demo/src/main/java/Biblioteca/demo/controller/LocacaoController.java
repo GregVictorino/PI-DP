@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import java.util.List;
 
 @RestController
@@ -58,6 +60,12 @@ public class LocacaoController {
     @PutMapping("/{id}/devolver")
     public ResponseEntity<Locacao> devolver(@PathVariable Long id) {
         return ResponseEntity.ok(locacaoService.devolver(id));
+    }
+
+    @PostMapping("/verificar-atrasos")
+    public ResponseEntity<Map<String, Object>> verificarAtrasos() {
+        int count = locacaoService.verificarAtrasos();
+        return ResponseEntity.ok(Map.of("atualizadas", count));
     }
 
     @DeleteMapping("/{id}")

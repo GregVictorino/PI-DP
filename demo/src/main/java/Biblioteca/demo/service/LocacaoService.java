@@ -116,6 +116,15 @@ public class LocacaoService {
         return locacaoRepository.save(locacao);
     }
 
+    @Transactional
+    public int verificarAtrasos() {
+        List<Locacao> atrasadas = locacaoRepository
+                .findByStatusAndDataDevolucaoPrevistaLessThan(StatusLocacao.ATIVA, LocalDate.now());
+        atrasadas.forEach(l -> l.setStatus(StatusLocacao.ATRASADA));
+        locacaoRepository.saveAll(atrasadas);
+        return atrasadas.size();
+    }
+
     public void deletar(Long id) {
         Locacao locacao = buscarPorId(id);
         // Só devolve ao estoque se já estava ATIVA (PENDENTE e REJEITADA nunca decrementaram)

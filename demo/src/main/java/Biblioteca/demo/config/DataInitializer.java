@@ -1,23 +1,31 @@
 package Biblioteca.demo.config;
 
 import Biblioteca.demo.model.Livro;
+import Biblioteca.demo.model.Locacao;
 import Biblioteca.demo.model.Usuario;
 import Biblioteca.demo.model.enums.Role;
+import Biblioteca.demo.model.enums.StatusLocacao;
 import Biblioteca.demo.repository.LivroRepository;
+import Biblioteca.demo.repository.LocacaoRepository;
 import Biblioteca.demo.repository.UsuarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
     private final LivroRepository   livroRepository;
+    private final LocacaoRepository locacaoRepository;
 
     public DataInitializer(UsuarioRepository usuarioRepository,
-                           LivroRepository livroRepository) {
+                           LivroRepository livroRepository,
+                           LocacaoRepository locacaoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.livroRepository   = livroRepository;
+        this.locacaoRepository = locacaoRepository;
     }
 
     @Override
@@ -61,9 +69,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Bentinho, o Dom Casmurro, narra sua história de amor com Capitu, " +
                 "a famosa \"Capitu dos olhos de ressaca\", e a dúvida que marcou sua vida."
             );
-            domCasmurro.setImageUrl(
-                "https://covers.openlibrary.org/b/id/647501-L.jpg"
-            );
+            domCasmurro.setImageUrl("https://covers.openlibrary.org/b/id/647501-L.jpg");
             domCasmurro.setQuantidadeTotal(5);
             domCasmurro.setQuantidadeDisponivel(5);
             livroRepository.save(domCasmurro);
@@ -78,9 +84,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Narrado por um defunto-autor, Brás Cubas conta sua vida de forma " +
                 "irreverente e filosófica, inaugurando o Realismo no Brasil."
             );
-            memorias.setImageUrl(
-                "https://covers.openlibrary.org/b/id/7959338-L.jpg"
-            );
+            memorias.setImageUrl("https://covers.openlibrary.org/b/id/7959338-L.jpg");
             memorias.setQuantidadeTotal(3);
             memorias.setQuantidadeDisponivel(3);
             livroRepository.save(memorias);
@@ -95,11 +99,9 @@ public class DataInitializer implements CommandLineRunner {
                 "Lenda do Ceará que narra o amor entre a índia Iracema e o " +
                 "guerreiro português Martim Soares Moreno, marco do Romantismo brasileiro."
             );
-            iracema.setImageUrl(
-                "https://covers.openlibrary.org/b/id/2664651-L.jpg"
-            );
+            iracema.setImageUrl("https://covers.openlibrary.org/b/id/2664651-L.jpg");
             iracema.setQuantidadeTotal(4);
-            iracema.setQuantidadeDisponivel(4);
+            iracema.setQuantidadeDisponivel(3); // 1 exemplar está em locação ativa abaixo
             livroRepository.save(iracema);
 
             Livro oCortiço = new Livro();
@@ -112,14 +114,46 @@ public class DataInitializer implements CommandLineRunner {
                 "Clássico do Naturalismo brasileiro que retrata a vida coletiva " +
                 "em uma habitação popular do Rio de Janeiro do século XIX."
             );
-            oCortiço.setImageUrl(
-                "https://covers.openlibrary.org/b/id/8176059-L.jpg"
-            );
+            oCortiço.setImageUrl("https://covers.openlibrary.org/b/id/8176059-L.jpg");
             oCortiço.setQuantidadeTotal(3);
             oCortiço.setQuantidadeDisponivel(3);
             livroRepository.save(oCortiço);
 
             System.out.println("✔ 4 livros de demonstração criados.");
+
+            // ── Locações de demonstração ─────────────────────────────────
+            Usuario joao = usuarioRepository.findByEmail("joao.silva@email.com").orElseThrow();
+
+            // 1) PENDENTE — João solicitou Dom Casmurro hoje (aguarda aprovação do admin)
+            Locacao pendente = new Locacao();
+            pendente.setUsuario(joao);
+            pendente.setLivro(domCasmurro);
+            pendente.setDataLocacao(LocalDate.now());
+            pendente.setDataDevolucaoPrevista(LocalDate.now().plusDays(14));
+            pendente.setStatus(StatusLocacao.PENDENTE);
+            locacaoRepository.save(pendente);
+
+            // 2) ATIVA com prazo vencido — Iracema retirada há 20 dias, devia ter voltado há 10
+            //    (pronta para o admin clicar "Verificar Atrasos" na demo)
+            Locacao ativaVencida = new Locacao();
+            ativaVencida.setUsuario(joao);
+            ativaVencida.setLivro(iracema);
+            ativaVencida.setDataLocacao(LocalDate.now().minusDays(20));
+            ativaVencida.setDataDevolucaoPrevista(LocalDate.now().minusDays(10));
+            ativaVencida.setStatus(StatusLocacao.ATIVA);
+            locacaoRepository.save(ativaVencida);
+
+            // 3) DEVOLVIDA — Memórias Póstumas já foi devolvida normalmente
+            Locacao devolvida = new Locacao();
+            devolvida.setUsuario(joao);
+            devolvida.setLivro(memorias);
+            devolvida.setDataLocacao(LocalDate.now().minusDays(30));
+            devolvida.setDataDevolucaoPrevista(LocalDate.now().minusDays(16));
+            devolvida.setDataDevolucaoReal(LocalDate.now().minusDays(18));
+            devolvida.setStatus(StatusLocacao.DEVOLVIDA);
+            locacaoRepository.save(devolvida);
+
+            System.out.println("✔ 3 locações de demonstração criadas (PENDENTE, ATIVA vencida, DEVOLVIDA).");
         }
     }
 }
