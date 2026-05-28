@@ -433,7 +433,7 @@
                   </div>
                 </td>
                 <td>${formatDate(l.dataLocacao)}</td>
-                <td>${formatDate(l.dataDevolucaoPrevista)}</td>
+                <td>${contarDias(l.dataDevolucaoPrevista, l.status)}</td>
                 <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
                 <td>${badgeStatus(l.status)}</td>
               </tr>`;
@@ -448,6 +448,22 @@
   // HELPERS
   // ========================
   function logout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+  function contarDias(dataPrevista, status) {
+    if (!dataPrevista || status === 'DEVOLVIDA' || status === 'REJEITADA' || status === 'PENDENTE') {
+      return `<div>${formatDate(dataPrevista)}</div>`;
+    }
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const [y,m,d] = dataPrevista.split('-');
+    const prazo   = new Date(y, m-1, d);
+    const diff    = Math.round((prazo - hoje) / 86400000);
+    let badge = '';
+    if (diff > 3)        badge = `<small style="color:#16a34a;font-weight:600">Faltam ${diff} dias</small>`;
+    else if (diff > 0)   badge = `<small style="color:#ea580c;font-weight:600">Faltam ${diff} dia${diff>1?'s':''}!</small>`;
+    else if (diff === 0) badge = `<small style="color:#dc2626;font-weight:700">Vence hoje!</small>`;
+    else                 badge = `<small style="color:#dc2626;font-weight:700">Atrasado ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}!</small>`;
+    return `<div>${formatDate(dataPrevista)}</div>${badge}`;
+  }
 
   function formatDate(d) {
     if (!d) return '—';

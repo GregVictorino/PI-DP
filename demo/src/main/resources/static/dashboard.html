@@ -327,18 +327,23 @@
       <section id="sec-locacoes" class="section">
         <div class="card">
           <div class="card-header">
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <h3 style="margin:0">Locações</h3>
-              <div id="filtroStatusAtivo" style="display:none;align-items:center;gap:6px;background:#fef2f2;border:1px solid #fecaca;border-radius:20px;padding:3px 10px;font-size:12px;color:#dc2626">
-                <span></span>
-                <button onclick="carregarLocacoes()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:14px;line-height:1;padding:0" title="Limpar filtro">×</button>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px">
+            <h3 style="margin:0">Locações</h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <select id="filtroStatusSelect" onchange="aplicarFiltroLocacoes()"
+                style="padding:7px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;background:#fff;cursor:pointer">
+                <option value="">Todos os status</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="ATIVA">Ativa</option>
+                <option value="ATRASADA">Atrasada</option>
+                <option value="DEVOLVIDA">Devolvida</option>
+                <option value="REJEITADA">Rejeitada</option>
+              </select>
               <button class="btn btn-secondary btn-sm" onclick="verificarAtrasos()" title="Detecta locações vencidas e marca como Atrasada">⏰ Verificar Atrasos</button>
               <button class="btn btn-primary btn-sm" onclick="abrirModalLocacao()">+ Nova Locação</button>
             </div>
           </div>
+          <!-- chip de filtro legado (usado por verificarAtrasos) -->
+          <div id="filtroStatusAtivo" style="display:none"></div>
           <div class="table-wrapper">
             <table>
               <thead>
@@ -915,40 +920,66 @@
   // ========================
   // LOCAÇÕES
   // ========================
+  let _todasLocacoes = [];
+
+  function contarDias(dataPrevista, status) {
+    if (!dataPrevista || status === 'DEVOLVIDA' || status === 'REJEITADA' || status === 'PENDENTE') {
+      return `<div>${formatDate(dataPrevista)}</div>`;
+    }
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const [y,m,d] = dataPrevista.split('-');
+    const prazo   = new Date(y, m-1, d);
+    const diff    = Math.round((prazo - hoje) / 86400000);
+    let badge = '';
+    if (diff > 3)       badge = `<small style="color:#16a34a;font-weight:600">Faltam ${diff} dias</small>`;
+    else if (diff > 0)  badge = `<small style="color:#ea580c;font-weight:600">Faltam ${diff} dia${diff>1?'s':''}!</small>`;
+    else if (diff === 0) badge = `<small style="color:#dc2626;font-weight:700">Vence hoje!</small>`;
+    else                badge = `<small style="color:#dc2626;font-weight:700">Atrasado ${Math.abs(diff)} dia${Math.abs(diff)>1?'s':''}!</small>`;
+    return `<div>${formatDate(dataPrevista)}</div>${badge}`;
+  }
+
+  function renderLocacoes(locacoes) {
+    const tbody = document.getElementById('tabelaLocacoes');
+    tbody.innerHTML = locacoes.length === 0
+      ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação encontrada</td></tr>'
+      : locacoes.map(l => `
+        <tr ${l.status === 'ATRASADA' ? 'style="background:#fff7f7"' : ''}>
+          <td>${l.usuario?.nome || '—'}</td>
+          <td>${l.livro?.titulo || '—'}</td>
+          <td>${formatDate(l.dataLocacao)}</td>
+          <td>${contarDias(l.dataDevolucaoPrevista, l.status)}</td>
+          <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
+          <td>${badgeStatus(l.status)}</td>
+          <td class="actions">
+            ${l.status === 'PENDENTE' ? `
+              <button class="btn btn-success btn-sm" onclick="aprovarLocacao(${l.id})">✔ Aprovar</button>
+              <button class="btn btn-danger btn-sm"  onclick="rejeitarLocacao(${l.id})">✘ Rejeitar</button>` : ''}
+            ${(l.status === 'ATIVA' || l.status === 'ATRASADA') ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
+          </td>
+        </tr>`).join('');
+  }
+
+  function aplicarFiltroLocacoes() {
+    const sel = document.getElementById('filtroStatusSelect').value;
+    const filtradas = sel ? _todasLocacoes.filter(l => l.status === sel) : _todasLocacoes;
+    renderLocacoes(filtradas);
+  }
+
   async function carregarLocacoes(filtroStatus = '') {
     showLoading('tabelaLocacoes', 7);
 
-    // Atualiza o indicador de filtro ativo
+    // Sincroniza o select com o filtro pedido (ex: vindo de verificarAtrasos)
+    const sel = document.getElementById('filtroStatusSelect');
+    if (filtroStatus) sel.value = filtroStatus;
+
+    // Chip legado — mantém compatibilidade mas agora é controlado pelo select
     const filtroEl = document.getElementById('filtroStatusAtivo');
-    if (filtroStatus) {
-      filtroEl.style.display = 'inline-flex';
-      filtroEl.querySelector('span').textContent = `Mostrando: ${filtroStatus}`;
-    } else {
-      filtroEl.style.display = 'none';
-    }
+    filtroEl.style.display = 'none';
 
     try {
-      const todas   = await api.getLocacoes();
-      const locacoes = filtroStatus ? todas.filter(l => l.status === filtroStatus) : todas;
-      const tbody    = document.getElementById('tabelaLocacoes');
-      tbody.innerHTML = locacoes.length === 0
-        ? '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Nenhuma locação encontrada</td></tr>'
-        : locacoes.map(l => `
-          <tr ${l.status === 'ATRASADA' ? 'style="background:#fff7f7"' : ''}>
-            <td>${l.usuario?.nome || '—'}</td>
-            <td>${l.livro?.titulo || '—'}</td>
-            <td>${formatDate(l.dataLocacao)}</td>
-            <td>${formatDate(l.dataDevolucaoPrevista)}</td>
-            <td>${l.dataDevolucaoReal ? formatDate(l.dataDevolucaoReal) : '—'}</td>
-            <td>${badgeStatus(l.status)}</td>
-            <td class="actions">
-              ${l.status === 'PENDENTE' ? `
-                <button class="btn btn-success btn-sm" onclick="aprovarLocacao(${l.id})">✔ Aprovar</button>
-                <button class="btn btn-danger btn-sm"  onclick="rejeitarLocacao(${l.id})">✘ Rejeitar</button>` : ''}
-              ${(l.status === 'ATIVA' || l.status === 'ATRASADA') ? `<button class="btn btn-success btn-sm" onclick="devolver(${l.id})">Devolver</button>` : ''}
-              <button class="btn btn-danger btn-sm" onclick="deletarLocacao(${l.id})">Excluir</button>
-            </td>
-          </tr>`).join('');
+      _todasLocacoes = await api.getLocacoes();
+      aplicarFiltroLocacoes();
     } catch (e) {
       document.getElementById('tabelaLocacoes').innerHTML =
         `<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:24px">Erro ao carregar locações: ${e.message}</td></tr>`;
